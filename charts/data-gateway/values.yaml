@@ -127,3 +127,18 @@ prometheus:
             - source_labels: [__meta_kubernetes_pod_phase]
               regex: Pending|Succeeded|Failed|Completed
               action: drop
+
+jaeger:
+  enabled: true
+  provisionDataStore:
+    cassandra: false
+  allInOne:
+    enabled: true
+  storage:
+    type: none
+  agent:
+    enabled: false
+  collector:
+    enabled: false
+  query:
+    enabled: false
