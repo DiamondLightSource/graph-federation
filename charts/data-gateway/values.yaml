@@ -37,7 +37,7 @@ prometheus:
           static_configs:
             - targets:
                 - localhost:9090
-        - job_name: "kubernetes-service-endpoints"
+        - job_name: kubernetes-service-endpoints
           kubernetes_sd_configs:
             - role: endpoints
               namespaces:
@@ -80,7 +80,7 @@ prometheus:
             - source_labels: [__meta_kubernetes_pod_node_name]
               action: replace
               target_label: node
-        - job_name: "kubernetes-pods"
+        - job_name: kubernetes-pods
           kubernetes_sd_configs:
             - role: pod
               namespaces:
@@ -134,6 +134,9 @@ jaeger:
     cassandra: false
   allInOne:
     enabled: true
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "14269"
   storage:
     type: none
   agent:
@@ -142,3 +145,63 @@ jaeger:
     enabled: false
   query:
     enabled: false
+
+opentelemetry-collector:
+  enabled: true
+  mode: deployment
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+  ports:
+    prometheus:
+      enabled: true
+      containerPort: 9090
+      servicePort: 9090
+      hostPort: 9090
+      protocol: TCP
+    jaeger-compact:
+      enabled: false
+    jaeger-thrift:
+      enabled: false
+    jaeger-grpc:
+      enabled: false
+    zipkin:
+      enabled: false
+  config:
+    receivers:
+      jaeger: null
+      zipkin: null
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: otel-collector
+              scrape_interval: 10s
+              static_configs:
+                - targets:
+                  - ${env:MY_POD_IP}:8888
+    exporters:
+      otlp/jaeger:
+        endpoint: "{{ .Release.Name }}-jaeger-collector:4317"
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: :9090
+    service:
+      pipelines:
+        metrics:
+          receivers:
+            - otlp
+            - prometheus
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - prometheus
+        traces:
+          receivers:
+            - otlp
+          processors:
+            - memory_limiter
+            - batch
+          exporters:
+            - otlp/jaeger
