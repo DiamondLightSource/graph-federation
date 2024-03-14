@@ -3,5 +3,10 @@ name: data-gateway
 description: A GraphQL router deployment forming the Diamond Data Gateway
 type: application
 
-version: 0.1.0
+version: 0.2.0
 
+dependencies:
+  - name: prometheus
+    repository: https://prometheus-community.github.io/helm-charts
+    version: 25.17.0
+    condition: prometheus.enabled
