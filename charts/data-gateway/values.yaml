@@ -205,3 +205,25 @@ opentelemetry-collector:
             - batch
           exporters:
             - otlp/jaeger
+router:
+  enabled: true
+  managedFederation:
+    graphRef: data-gateway@current
+  ingress:
+    enabled: true
+    hosts:
+      - host: data-gateway.diamond.ac.uk
+        paths:
+          - path: /
+            pathType: Prefix
+  router:
+    args:
+      - --hot-reload
+      - --dev
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 1
+      memory: 128Mi

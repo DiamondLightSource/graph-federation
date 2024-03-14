@@ -3,7 +3,7 @@ name: data-gateway
 description: A GraphQL router deployment forming the Diamond Data Gateway
 type: application
 
-version: 0.2.0
+version: 0.3.0
 
 dependencies:
   - name: prometheus
@@ -18,3 +18,7 @@ dependencies:
     repository: https://open-telemetry.github.io/opentelemetry-helm-charts
     version: 0.83.0
     condition: opentelemetry-collector.enabled
+  - name: router
+    repository: oci://ghcr.io/apollographql/helm-charts
+    version: 1.41.1
+    condition: apollo-router.enabled

@@ -8,5 +8,8 @@ dependencies:
 - name: opentelemetry-collector
   repository: https://open-telemetry.github.io/opentelemetry-helm-charts
   version: 0.83.0
-digest: sha256:c64dbb83ab863fb6f4c83dd8fc4505508072fda7b83f3ae1d1ac96af4b3b0c5f
-generated: "2024-03-14T11:22:20.559143777Z"
+- name: router
+  repository: oci://ghcr.io/apollographql/helm-charts
+  version: 1.41.1
+digest: sha256:c33267c54daddb2c5ce7934886e0c734a1c2a04eb1c4360e8be0aacc191120c6
+generated: "2024-03-14T15:16:23.516231741Z"
