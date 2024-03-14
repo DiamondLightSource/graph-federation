@@ -208,7 +208,8 @@ opentelemetry-collector:
 router:
   enabled: true
   managedFederation:
-    graphRef: data-gateway@current
+    existingSecret: router-apikey
+    graphRef: data-gateway-n63jcf@current
   ingress:
     enabled: true
     hosts:
@@ -218,8 +219,25 @@ router:
             pathType: Prefix
   router:
     args:
-      - --hot-reload
-      - --dev
+    - --hot-reload
+    - --dev
+    configuration:
+      telemetry:
+        instrumentation:
+          spans:
+            mode: spec_compliant
+        exporters:
+          metrics:
+            otlp:
+              enabled: true
+              endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
+              protocol: grpc
+          tracing:
+            otlp:
+              enabled: true
+              endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
+              protocol: grpc
+
   resources:
     requests:
       cpu: 100m
