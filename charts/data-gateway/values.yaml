@@ -205,6 +205,7 @@ opentelemetry-collector:
             - batch
           exporters:
             - otlp/jaeger
+
 router:
   enabled: true
   managedFederation:
@@ -217,27 +218,39 @@ router:
         paths:
           - path: /
             pathType: Prefix
-  router:
-    args:
+  extraVolumes:
+  - name: router-configuration
+    configMap:
+      name: router-configuration
+  args:
     - --hot-reload
-    - --dev
-    configuration:
-      telemetry:
-        instrumentation:
-          spans:
-            mode: spec_compliant
-        exporters:
-          metrics:
-            otlp:
-              enabled: true
-              endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
-              protocol: grpc
-          tracing:
-            otlp:
-              enabled: true
-              endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
-              protocol: grpc
-
+  configuration: {}
+  myconfiguration:
+    supergraph:
+      listen: 0.0.0.0:4000
+    health_check:
+      listen: 0.0.0.0:8088
+    telemetry:
+      instrumentation:
+        spans:
+          mode: spec_compliant
+      exporters:
+        metrics:
+          common:
+            resource:
+              "service.name": "router"
+          otlp:
+            enabled: true
+            endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
+            protocol: grpc
+        tracing:
+          common:
+            resource:
+              "service.name": "router"
+          otlp:
+            enabled: true
+            endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
+            protocol: grpc
   resources:
     requests:
       cpu: 100m
