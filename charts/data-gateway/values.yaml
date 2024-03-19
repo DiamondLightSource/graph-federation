@@ -30,6 +30,10 @@ prometheus:
   server:
     persistentVolume:
       enabled: false
+    resources:
+      limits:
+        cpu: 50m
+        memory: 400Mi
   serverFiles:
     prometheus.yml:
       scrape_configs:
