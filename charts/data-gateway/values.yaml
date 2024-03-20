@@ -224,19 +224,15 @@ router:
   managedFederation:
     existingSecret: router-apikey
     graphRef: data-gateway-n63jcf@current
-  ingress:
-    enabled: true
-    hosts:
-      - host: graph.diamond.ac.uk
-        paths:
-          - path: /
-            pathType: Prefix
   extraVolumes:
   - name: router-configuration
     configMap:
       name: router-configuration
   args:
     - --hot-reload
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "44180"
   configuration: {}
   myconfiguration:
     sandbox:
@@ -248,6 +244,11 @@ router:
       listen: 0.0.0.0:4000
     include_subgraph_errors:
       all: true
+    headers:
+      all:
+        request:
+          - propagate:
+              matching: authorization
     health_check:
       listen: 0.0.0.0:8088
     telemetry:
@@ -271,6 +272,8 @@ router:
             enabled: true
             endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
             protocol: grpc
+          propagation:
+            trace_context: true
   resources:
     requests:
       cpu: 100m
@@ -278,3 +281,67 @@ router:
     limits:
       cpu: 1
       memory: 128Mi
+
+oauth2-proxy:
+  enabled: true
+  ingress:
+    enabled: true
+    hostname: graph.diamond.ac.uk
+    pathType: Prefix
+    hosts:
+      - graph.diamond.ac.uk
+    path: /
+  config:
+    configFile: |-
+      email_domains = [
+        "diamond.ac.uk"
+      ]
+  alphaConfig:
+    enabled: true
+    configFile: |
+      upstreamConfig:
+        upstreams:
+          - id: router
+            path: /
+            uri: http://{{ .Release.Name }}-router:80
+      injectRequestHeaders:
+        - name: Authorization
+          values:
+            - claim: access_token
+              prefix: "Bearer "
+      injectResponseHeaders:
+        - name: Identity
+          values:
+            - claim: id_token
+      providers:
+        - provider: oidc
+          scope: "openid profile email fedid"
+          clientId: graph
+          clientSecretFile: /etc/alpha/client-secret
+          id: authn
+          oidcConfig:
+            issuerURL: https://authn.diamond.ac.uk/realms/master
+            insecureAllowUnverifiedEmail: true
+            audienceClaims:
+              - aud
+            emailClaim: email
+            userIDClaim: email
+  extraArgs:
+    - --cookie-refresh=55s
+  redis:
+    enabled: true
+    networkPolicy:
+      enabled: false
+  sessionStorage:
+    type: redis
+  extraVolumes:
+    - name: client-secret
+      secret:
+        secretName: oauth2-client
+        items:
+          - key: secret
+            path: client-secret
+  extraVolumeMounts:
+    - name: client-secret
+      mountPath: /etc/alpha
+      readOnly: true
