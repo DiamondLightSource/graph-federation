@@ -30,6 +30,10 @@ prometheus:
   server:
     persistentVolume:
       enabled: false
+    ingress:
+      enabled: true
+      hosts:
+        - graph-metrics.diamond.ac.uk
     resources:
       limits:
         cpu: 50m
@@ -141,6 +145,11 @@ jaeger:
     annotations:
       prometheus.io/scrape: "true"
       prometheus.io/port: "14269"
+    ingress:
+      enabled: true
+      pathType: Prefix
+      hosts:
+        - graph-tracing.diamond.ac.uk
   storage:
     type: none
   agent:
