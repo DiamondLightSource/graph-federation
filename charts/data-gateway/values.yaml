@@ -253,8 +253,8 @@ router:
               matching: authorization
     cors:
       match_origins:
-        - ^https:\/\/(\w+\.)*diamond\.ac\.uk$
-        - ^https?:\/\/localhost(:\d+)?$
+        - ^https:\/\/([a-zA-Z0-9\-]+\.)*diamond\.ac\.uk\/?
+        - ^https?:\/\/localhost(:\d+)?\/?
     health_check:
       listen: 0.0.0.0:8088
     telemetry:
