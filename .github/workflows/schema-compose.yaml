@@ -27,3 +27,32 @@ jobs:
         with:
           name: supergraph.graphql
           path: supergraph.graphql
+    
+      - name: Generate Helm Chart
+        run: |
+          mkdir -p supergraph/templates
+          cat <<EOF > supergraph/Chart.yaml
+          apiVersion: v2
+          name: supergraph
+          version: 0.1.0
+          EOF
+
+          cat <<EOF > supergraph/values.yaml
+          EOF
+
+          cat <<EOF > supergraph/templates/supergraph-configmap.yaml
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: supergraph-config
+          data:
+            supergraph.graphql: |
+          EOF
+
+          sed 's/^/    /' supergraph.graphql >> supergraph/templates/supergraph-configmap.yaml
+        
+      - name: testing view
+        run: |
+          ls 
+          cat supergraph/templates/supergraph-configmap.yaml
+
