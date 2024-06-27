@@ -1,18 +1,9 @@
 dependencies:
-- name: prometheus
-  repository: https://prometheus-community.github.io/helm-charts
-  version: 25.17.0
-- name: jaeger
-  repository: https://jaegertracing.github.io/helm-charts
-  version: 2.0.0
-- name: opentelemetry-collector
-  repository: https://open-telemetry.github.io/opentelemetry-helm-charts
-  version: 0.83.0
 - name: router
   repository: oci://ghcr.io/apollographql/helm-charts
   version: 1.45.0
 - name: oauth2-proxy
   repository: https://oauth2-proxy.github.io/manifests/
   version: 7.1.0
-digest: sha256:1bfb02de740f5d0ec3661953f3604052e4e6829ff71bb856bd003d4932a37d60
-generated: "2024-04-25T16:55:28.205867475+01:00"
+digest: sha256:66db75a483d887d45508ccef2a4d31e1eeb63fe6a4c3999d0b293d3ec98ebaa5
+generated: "2024-06-27T16:41:56.852616482+01:00"
