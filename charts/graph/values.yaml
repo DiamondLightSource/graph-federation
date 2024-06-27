@@ -337,14 +337,6 @@ oauth2-proxy:
               - aud
             emailClaim: email
             userIDClaim: email
-  extraArgs:
-    - --cookie-refresh=55s
-  redis:
-    enabled: true
-    networkPolicy:
-      enabled: false
-  sessionStorage:
-    type: redis
   extraVolumes:
     - name: client-secret
       secret:
