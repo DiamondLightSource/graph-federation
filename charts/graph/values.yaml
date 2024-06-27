@@ -331,7 +331,7 @@ oauth2-proxy:
           clientSecretFile: /etc/alpha/client-secret
           id: authn
           oidcConfig:
-            issuerURL: https://authn.diamond.ac.uk/realms/master
+            issuerURL: https://authn.diamond.ac.uk/realms/dls
             insecureAllowUnverifiedEmail: true
             audienceClaims:
               - aud
