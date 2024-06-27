@@ -182,8 +182,8 @@ opentelemetry-collector:
       enabled: false
   config:
     receivers:
-      jaeger: null
-      zipkin: null
+      jaeger: {}
+      zipkin: {}
       prometheus:
         config:
           scrape_configs:
