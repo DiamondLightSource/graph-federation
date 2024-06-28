@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: graph-monitoring
   namespace: {{ .Release.Namespace }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
 spec:
   project: {{ .Release.Namespace }}
   source:
