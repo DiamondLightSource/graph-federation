@@ -1,0 +1,6 @@
+site_name: Workflows
+site_url: https://diamondlightsource.github.io/graph-federation
+repo_url: https://github.com/DiamondLightSource/graph-federation
+edit_uri: edit/main/docs/
+plugins:
+  - techdocs-diamond
