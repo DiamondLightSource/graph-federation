@@ -1,0 +1,75 @@
+name: Docs CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    # Deduplicate jobs from pull requests and branch pushes within the same repo.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4.1.7
+
+      - name: Setup Node
+        uses: actions/setup-node@v4.0.2
+        with:
+          node-version: 18
+
+      - name: Install Yarn dependencies
+        uses: borales/actions-yarn@v5.0.0
+        with:
+          cmd: global add markdownlint-cli2 markdown-it-admon
+
+      - name: Lint with markdownlint-cli2
+        run: >
+          markdownlint-cli2
+          **/*.{md,markdown}
+
+  build:
+    # Deduplicate jobs from pull requests and branch pushes within the same repo.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4.1.7
+
+      - name: Setup Python
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: 3.12
+
+      - name: Install Python Dependencies
+        run: pip install -r docs/requirements.txt
+
+      - name: Build User Docs
+        run: mkdocs build
+
+      - name: Fix file permissions for pages
+        run: chmod -R +rX site
+
+      - name: Upload User Docs Artifact
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          path: site
+
+  publish_gh_pages:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v5.0.0
+
+      - name: Publish docs to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.5
