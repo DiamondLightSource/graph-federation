@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: graph-nightly
+  namespace: {{ .Release.Namespace }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ default .Release.Namespace .Values.project }}
+  source:
+    repoURL: {{ .Values.source.repoURL }}
+    targetRevision: {{ .Values.source.targetRevision }}
+    path: {{ .Values.source.graph.path }}
+    helm:
+      valuesObject:
+        router:
+          router:
+            configuration:
+              sandbox:
+                enabled: false
+              supergraph:
+                path: /nightly
+              telemetry:
+                exporters:
+                  metrics:
+                    common:
+                      resource:
+                        "service.name": "router-nightly"
+                    otlp:
+                      enabled: true
+                      endpoint: 'graph-monitoring-opentelemetry-collector:4317'
+                      protocol: grpc
+                  tracing:
+                    common:
+                      resource:
+                        "service.name": "router-nightly"
+                    otlp:
+                      enabled: true
+                      endpoint: 'graph-monitoring-opentelemetry-collector:4317'
+                      protocol: grpc
+                    propagation:
+                      trace_context: true
+        oauth2-proxy:
+          ingress:
+            path: /nightly
+  destination:
+    name: {{ .Values.destination.name }}
+    server: {{ .Values.destination.server }}
+    namespace: {{ default .Release.Namespace .Values.destination.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

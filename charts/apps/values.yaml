@@ -1,0 +1,14 @@
+project: ""
+
+source:
+  repoURL: https://github.com/DiamondLightSource/graph-federation
+  targetRevision: HEAD
+  monitoring:
+    path: charts/monitoring
+  graph:
+    path: charts/graph
+
+destination:
+  name: ""
+  server: ""
+  namespace: ""
