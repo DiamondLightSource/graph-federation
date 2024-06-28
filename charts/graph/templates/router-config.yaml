@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: router-configuration
-data:
-  configuration.yaml: |
-    {{- tpl (.Values.router.myconfiguration | toYaml) . | nindent 4 }}
