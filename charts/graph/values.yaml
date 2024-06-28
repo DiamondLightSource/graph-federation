@@ -3,62 +3,39 @@ router:
   managedFederation:
     existingSecret: router-apikey
     graphRef: data-gateway-n63jcf@current
-  extraVolumes:
-  - name: router-configuration
-    configMap:
-      name: router-configuration
   args:
     - --hot-reload
   podAnnotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "44180"
-  configuration: {}
-  myconfiguration:
-    sandbox:
-      enabled: true
-    homepage:
-      enabled: false
-    supergraph:
-      introspection: true
-      listen: 0.0.0.0:4000
-      query_planning:
-        experimental_parallelism: auto
-    include_subgraph_errors:
-      all: true
-    headers:
-      all:
-        request:
-          - propagate:
-              matching: authorization
-    cors:
-      match_origins:
-        - ^https:\/\/([a-zA-Z0-9\-]+\.)*diamond\.ac\.uk\/?
-        - ^https?:\/\/localhost(:\d+)?\/?
-    health_check:
-      listen: 0.0.0.0:8088
-    telemetry:
-      instrumentation:
-        spans:
-          mode: spec_compliant
-      exporters:
-        metrics:
-          common:
-            resource:
-              "service.name": "router"
-          otlp:
-            enabled: true
-            endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
-            protocol: grpc
-        tracing:
-          common:
-            resource:
-              "service.name": "router"
-          otlp:
-            enabled: true
-            endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
-            protocol: grpc
-          propagation:
-            trace_context: true
+  router:
+    configuration:
+      sandbox:
+        enabled: true
+      homepage:
+        enabled: false
+      supergraph:
+        introspection: true
+        listen: 0.0.0.0:4000
+        query_planning:
+          experimental_parallelism: auto
+      include_subgraph_errors:
+        all: true
+      headers:
+        all:
+          request:
+            - propagate:
+                matching: authorization
+      cors:
+        match_origins:
+          - ^https:\/\/([a-zA-Z0-9\-]+\.)*diamond\.ac\.uk\/?
+          - ^https?:\/\/localhost(:\d+)?\/?
+      health_check:
+        listen: 0.0.0.0:8088
+      telemetry:
+        instrumentation:
+          spans:
+            mode: spec_compliant
   resources:
     requests:
       cpu: 8
