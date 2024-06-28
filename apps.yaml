@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: graph
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    name: argus
+    namespace: graph
+  source:
+    path: charts/apps
+    repoURL: https://github.com/DiamondLightSource/graph-federation.git
+    targetRevision: HEAD
+    helm:
+      valuesObject:
+        destination:
+          name: argus
+  sources: []
+  project: graph
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
