@@ -1,9 +1,9 @@
 dependencies:
 - name: router
   repository: oci://ghcr.io/apollographql/helm-charts
-  version: 1.45.0
+  version: 1.49.1
 - name: oauth2-proxy
   repository: https://oauth2-proxy.github.io/manifests/
   version: 7.1.0
-digest: sha256:66db75a483d887d45508ccef2a4d31e1eeb63fe6a4c3999d0b293d3ec98ebaa5
-generated: "2024-06-27T16:41:56.852616482+01:00"
+digest: sha256:7e0cb13e0318d9ccbf76c65095e21dd8e2bbbafac4a29239a97984822161f77a
+generated: "2024-06-28T10:05:01.229256127+01:00"
