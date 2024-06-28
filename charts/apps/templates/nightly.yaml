@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: graph-nightly
+  namespace: {{ .Release.Namespace }}
+spec:
+  project: {{ .Release.Namespace }}
+  source:
+    repoURL: https://github.com/DiamondLightSource/graph-federation
+    targetRevision: HEAD
+    path: charts/graph
+  destination:
+    server: https://api.argus.diamond.ac.uk:6443
+    namespace: {{ .Release.Namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
