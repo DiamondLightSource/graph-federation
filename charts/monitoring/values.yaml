@@ -151,7 +151,7 @@ jaeger:
       hosts:
         - graph-tracing.diamond.ac.uk
   storage:
-    type: none
+    type: memory
   agent:
     enabled: false
   collector:
