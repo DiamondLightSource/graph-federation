@@ -2,7 +2,7 @@ apiVersion: v2
 name: graph
 description: The Diamond data Graph
 type: application
-version: 0.8.0
+version: 0.9.0
 dependencies:
   - name: router
     repository: oci://ghcr.io/apollographql/helm-charts

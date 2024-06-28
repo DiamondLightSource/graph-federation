@@ -3,17 +3,12 @@ router:
   managedFederation:
     existingSecret: router-apikey
     graphRef: data-gateway-n63jcf@current
-  extraVolumes:
-  - name: router-configuration
-    configMap:
-      name: router-configuration
   args:
     - --hot-reload
   podAnnotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "44180"
-  configuration: {}
-  myconfiguration:
+  configuration:
     sandbox:
       enabled: true
     homepage:
@@ -40,25 +35,6 @@ router:
       instrumentation:
         spans:
           mode: spec_compliant
-      exporters:
-        metrics:
-          common:
-            resource:
-              "service.name": "router"
-          otlp:
-            enabled: true
-            endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
-            protocol: grpc
-        tracing:
-          common:
-            resource:
-              "service.name": "router"
-          otlp:
-            enabled: true
-            endpoint: '{{ .Release.Name }}-opentelemetry-collector:4317'
-            protocol: grpc
-          propagation:
-            trace_context: true
   resources:
     requests:
       cpu: 8

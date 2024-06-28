@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: graph-monitoring
+  namespace: {{ .Release.Namespace }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Release.Namespace }}
+  source:
+    repoURL: https://github.com/DiamondLightSource/graph-federation
+    targetRevision: HEAD
+    path: charts/monitoring
+  destination:
+    server: https://api.argus.diamond.ac.uk:6443
+    namespace: {{ .Release.Namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
