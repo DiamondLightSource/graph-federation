@@ -19,8 +19,11 @@ jobs:
           echo "$HOME/.rover/bin" >> $GITHUB_PATH
 
       - name: Compose Schema
-        run: |
-          rover supergraph compose --config schema/supergraph-config.yaml --elv2-license=accept > supergraph.graphql
+        run: >
+          rover supergraph compose
+          --config schema/supergraph-config.yaml
+          --elv2-license=accept
+          > supergraph.graphql
 
       - name: Upload Schema Artifact
         uses: actions/upload-artifact@v4.3.3
@@ -38,11 +41,10 @@ jobs:
     permissions:
       contents: read
       packages: write
-    strategy:
-      matrix:
-        chart:
-          - supergraph
     steps:
+      - name: Checkout source
+        uses: actions/checkout@v4.1.4
+
       - name: Setup Helm
         uses: azure/setup-helm@v4.0.0
 
@@ -51,34 +53,14 @@ jobs:
         with:
           name: supergraph.graphql     
 
-      - name: Generate Helm Chart
-        run: |
-          mkdir -p ${{ matrix.chart }}/templates
-          cat <<EOF > ${{ matrix.chart }}/Chart.yaml
-          apiVersion: v2
-          name: supergraph
-          version: 0.1.0
-          EOF
-
-          cat <<EOF > ${{ matrix.chart }}/values.yaml
-          EOF
-
-          cat <<EOF > ${{ matrix.chart}}/templates/supergraph-configmap.yaml
-          apiVersion: v1
-          kind: ConfigMap
-          metadata:
-            name: supergraph-config
-          data:
-            supergraph.graphql: |
-          EOF
-
-          sed 's/^/    /' supergraph.graphql >> ${{ matrix.chart }}/templates/supergraph-configmap.yaml
+      - name: Move Schema to Charts Directory
+        run: mv supergraph.graphql charts/supergraph/
 
       - name: Package Chart
-        run: helm package ${{ matrix.chart }}
+        run: helm package charts/supergraph
 
       - name: Generate Image Name
-        run: echo IMAGE_REPOSITORY=oci://ghcr.io/$(echo "${{ github.repository }}-${{ matrix.chart }}" | tr '[:upper:]' '[:lower:]' | tr '[_]' '[\-]') >> $GITHUB_ENV
+        run: echo IMAGE_REPOSITORY=oci://ghcr.io/$(echo "${{ github.repository }}-supergraph/latest" | tr '[:upper:]' '[:lower:]' | tr '[_]' '[\-]') >> $GITHUB_ENV
 
       - name: Log in to GitHub Docker Registry
         if: github.event_name != 'pull_request'
@@ -88,6 +70,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish Chart
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: helm push $(ls ${{ matrix.chart }}-*.tgz) ${{ env.IMAGE_REPOSITORY }}
+      - name: Publish Chart with latest
+        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: helm push $(ls supergraph-*.tgz) ${{ env.IMAGE_REPOSITORY }}
+
+      - name: Publish Chart with stable
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        run: helm push $(ls supergraph-*.tgz) ${{ env.IMAGE_REPOSITORY }}
