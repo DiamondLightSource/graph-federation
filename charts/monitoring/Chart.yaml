@@ -2,11 +2,11 @@ apiVersion: v2
 name: monitoring
 description: Monitoring tools for the Graph
 type: application
-version: 0.1.0
+version: 0.2.0
 dependencies:
   - name: prometheus
     repository: https://prometheus-community.github.io/helm-charts
-    version: 25.17.0
+    version: 25.22.0
     condition: prometheus.enabled
   - name: jaeger
     repository: https://jaegertracing.github.io/helm-charts
