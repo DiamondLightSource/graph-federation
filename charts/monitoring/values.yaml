@@ -161,6 +161,8 @@ jaeger:
 
 opentelemetry-collector:
   enabled: true
+  image:
+    repository: otel/opentelemetry-collector-contrib
   mode: deployment
   podAnnotations:
     prometheus.io/scrape: "true"
