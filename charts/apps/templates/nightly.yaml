@@ -13,6 +13,8 @@ spec:
       valuesObject:
         router:
           configuration:
+            supergraph:
+              path: /nightly
             telemetry:
               exporters:
                 metrics:
@@ -33,6 +35,9 @@ spec:
                     protocol: grpc
                   propagation:
                     trace_context: true
+        oauth2-proxy:
+          ingress:
+            path: /nightly
   destination:
     server: https://api.argus.diamond.ac.uk:6443
     namespace: {{ .Release.Namespace }}
