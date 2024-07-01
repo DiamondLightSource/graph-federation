@@ -20,7 +20,7 @@ jobs:
         with:
           cmd: global add @graphql-inspector/cli graphql
 
-      - name: Checkout source
+      - name: Checkout main branch
         uses: actions/checkout@v4.1.4
         with:
           ref: main
@@ -38,13 +38,8 @@ jobs:
           name: old_supergraph.graphql
           path: old_supergraph.graphql
 
-      - name: Checkout main branch
+      - name: Checkout Source
         uses: actions/checkout@v4.1.4
-
-      - name: Download old Schema Artifact
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: old_supergraph.graphql     
 
       - name: Compose Supergraph Schema
         run: >
@@ -53,15 +48,47 @@ jobs:
           --elv2-license=accept
           > supergraph.graphql
 
-      - name: Check composed schema
-        run: graphql-inspector diff old_supergraph.graphql supergraph.graphql
-      
-      - name: Upload Schema Artifact
+      - name: Download old Schema Artifact
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: old_supergraph.graphql     
+
+      - name: Compare New Schnema with Old Schema
+        continue-on-error: true
+        run: graphql-inspector diff old_supergraph.graphql supergraph.graphql --federation > changes.txt
+
+      - name: Generate Diff
+        run: |
+          git diff --no-index old_supergraph.graphql supergraph.graphql > diff_output.txt
+
+      - name: Read Diff Output
+        id: read_diff
+        run: |
+          echo "DIFF_OUTPUT=$(cat diff_output.txt)" >> $GITHUB_ENV
+
+      - name: Comment PR with schema diff
+        uses: allthatjazzleo/actions-pull-request-add-comment@master
+        if: github.event_name == 'pull_request'
+        with: 
+          message: $DIFF_OUTPUT
+          comment_tag: schema_diff
+          mode: recreate
+
+      # - name: Check for breaking changes
+      #   id: check_breaking_changes
+      #   run: |
+      #     if grep -q 'No breaking changes' changes.txt; then
+      #       echo "breaking_changes=false" >> $GITHUB_ENV
+      #     else
+      #       echo "breaking_changes=true" >> $GITHUB_ENV
+      #     fi
+
+      - name: Upload New Schema Artifact
         uses: actions/upload-artifact@v4.3.3
         with:
           name: supergraph.graphql
           path: supergraph.graphql
-    
+      
   publish:
     # Deduplicate jobs from pull requests and branch pushes within the same repo.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
