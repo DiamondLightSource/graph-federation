@@ -9,5 +9,7 @@ nav:
   - Home: index
   - How-To Guides:
       - ... | flat | how-tos/*.md
+  - Explanations:
+      - ... | flat | explanations/*.md
   - References:
       - ... | flat | references/*.md
