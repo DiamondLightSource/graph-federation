@@ -9,3 +9,5 @@ nav:
   - Home: index
   - How-To Guides:
       - ... | flat | how-tos/*.md
+  - References:
+      - ... | flat | references/*.md
