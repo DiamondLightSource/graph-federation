@@ -4,3 +4,8 @@ repo_url: https://github.com/DiamondLightSource/graph-federation
 edit_uri: edit/main/docs/
 plugins:
   - techdocs-diamond
+
+nav:
+  - Home: index
+  - How-To Guides:
+      - ... | flat | how-tos/*.md
