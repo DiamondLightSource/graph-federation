@@ -10,28 +10,58 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4.1.4
-
       - name: Install Rover CLI
         run: |
           curl -sSL https://rover.apollo.dev/nix/v0.23.0-rc.3 | sh
           echo "$HOME/.rover/bin" >> $GITHUB_PATH
 
-      - name: Compose Schema
+      - name: Install graphql inspector 
+        uses: borales/actions-yarn@v5.0.0
+        with:
+          cmd: global add @graphql-inspector/cli graphql
+
+      - name: Checkout source
+        uses: actions/checkout@v4.1.4
+        with:
+          ref: main
+
+      - name: Compose old Supergraph Schema
         run: >
           rover supergraph compose
-          --config schema/supergraph-config.yaml
+          --config supergraph-config.yaml
+          --elv2-license=accept
+          > old_supergraph.graphql
+
+      - name: Upload old Schema Artifact
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: old_supergraph.graphql
+          path: old_supergraph.graphql
+
+      - name: Checkout main branch
+        uses: actions/checkout@v4.1.4
+
+      - name: Download old Schema Artifact
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: old_supergraph.graphql     
+
+      - name: Compose Supergraph Schema
+        run: >
+          rover supergraph compose
+          --config supergraph-config.yaml
           --elv2-license=accept
           > supergraph.graphql
 
+      - name: Check composed schema
+        run: graphql-inspector diff old_supergraph.graphql supergraph.graphql
+      
       - name: Upload Schema Artifact
         uses: actions/upload-artifact@v4.3.3
         with:
           name: supergraph.graphql
           path: supergraph.graphql
     
-
   publish:
     # Deduplicate jobs from pull requests and branch pushes within the same repo.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
@@ -52,15 +82,13 @@ jobs:
         uses: actions/download-artifact@v4.1.7
         with:
           name: supergraph.graphql     
-
-      - name: Move Schema to Charts Directory
-        run: mv supergraph.graphql charts/supergraph/
+          path: charts/supergraph
 
       - name: Package Chart
         run: helm package charts/supergraph
 
       - name: Generate Image Name
-        run: echo IMAGE_REPOSITORY=oci://ghcr.io/$(echo "${{ github.repository }}-supergraph/latest" | tr '[:upper:]' '[:lower:]' | tr '[_]' '[\-]') >> $GITHUB_ENV
+        run: echo IMAGE_REPOSITORY=oci://ghcr.io/$(echo "${{ github.repository }}-supergraph" | tr '[:upper:]' '[:lower:]' | tr '[_]' '[\-]') >> $GITHUB_ENV
 
       - name: Log in to GitHub Docker Registry
         if: github.event_name != 'pull_request'
@@ -70,10 +98,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish Chart with latest
-        # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: helm push $(ls supergraph-*.tgz) ${{ env.IMAGE_REPOSITORY }}
-
-      - name: Publish Chart with stable
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      - name: Publish Chart
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: helm push $(ls supergraph-*.tgz) ${{ env.IMAGE_REPOSITORY }}
