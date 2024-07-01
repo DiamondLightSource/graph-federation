@@ -7,5 +7,7 @@ plugins:
 
 nav:
   - Home: index
+  - Explanations:
+      - ... | flat | explanations/*.md
   - References:
       - ... | flat | references/*.md
