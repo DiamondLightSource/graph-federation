@@ -15,36 +15,8 @@ jobs:
           curl -sSL https://rover.apollo.dev/nix/v0.23.0-rc.3 | sh
           echo "$HOME/.rover/bin" >> $GITHUB_PATH
 
-      - name: Install graphql inspector 
-        uses: borales/actions-yarn@v5.0.0
-        with:
-          cmd: global add @graphql-inspector/cli graphql
-
-      - name: Checkout source
+      - name: Checkout Source
         uses: actions/checkout@v4.1.4
-        with:
-          ref: main
-
-      - name: Compose old Supergraph Schema
-        run: >
-          rover supergraph compose
-          --config supergraph-config.yaml
-          --elv2-license=accept
-          > old_supergraph.graphql
-
-      - name: Upload old Schema Artifact
-        uses: actions/upload-artifact@v4.3.3
-        with:
-          name: old_supergraph.graphql
-          path: old_supergraph.graphql
-
-      - name: Checkout main branch
-        uses: actions/checkout@v4.1.4
-
-      - name: Download old Schema Artifact
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: old_supergraph.graphql     
 
       - name: Compose Supergraph Schema
         run: >
@@ -53,15 +25,12 @@ jobs:
           --elv2-license=accept
           > supergraph.graphql
 
-      - name: Check composed schema
-        run: graphql-inspector diff old_supergraph.graphql supergraph.graphql
-      
-      - name: Upload Schema Artifact
+      - name: Upload New Schema Artifact
         uses: actions/upload-artifact@v4.3.3
         with:
           name: supergraph.graphql
           path: supergraph.graphql
-    
+
   publish:
     # Deduplicate jobs from pull requests and branch pushes within the same repo.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
@@ -101,3 +70,66 @@ jobs:
       - name: Publish Chart
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: helm push $(ls supergraph-*.tgz) ${{ env.IMAGE_REPOSITORY }}
+
+  compare_schema:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - name: Install Rover CLI
+        run: |
+          curl -sSL https://rover.apollo.dev/nix/v0.23.0-rc.3 | sh
+          echo "$HOME/.rover/bin" >> $GITHUB_PATH
+
+      - name: Checkout main branch
+        uses: actions/checkout@v4.1.4
+        with:
+          ref: main
+
+      - name: Compose old Supergraph Schema
+        run: >
+          rover supergraph compose
+          --config supergraph-config.yaml
+          --elv2-license=accept
+          > old_supergraph.graphql
+
+      - name: Upload Old Schema Artifact
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: old_supergraph.graphql
+          path: old_supergraph.graphql
+
+      - name: Checkout Source
+        uses: actions/checkout@v4.1.4
+
+      - name: Download old Schema Artifact
+        uses: actions/download-artifact@v4.1.7
+        with:
+          name: old_supergraph.graphql     
+
+      - name: Compose New Supergraph Schema
+        run: >
+          rover supergraph compose
+          --config supergraph-config.yaml
+          --elv2-license=accept
+          > supergraph.graphql
+
+      - name: Generate Schema Diff
+        continue-on-error: true
+        run: |
+          git diff --no-index old_supergraph.graphql supergraph.graphql > diff.md
+
+      - name: Check if Diff Exists
+        id: diff-check
+        run: |
+          if [ -s diff.md ]; then echo "has_diff=true" >> $GITHUB_ENV; fi
+
+      - name: Format Diff into Markdown
+        run: |
+          sed -i '1s/^/```diff\n/; $a```' diff.md
+        
+      - name: Comment PR with artefact comparison report
+        if: env.has_diff == 'true'
+        uses: JoseThen/comment-pr@v1.2.0
+        with:
+          file_path: diff.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

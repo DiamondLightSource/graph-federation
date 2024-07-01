@@ -3,5 +3,5 @@ schema {
 }
 
 type Query {
-  empty: String
+  _empty: String
 }
