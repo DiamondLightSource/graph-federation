@@ -1,0 +1,16 @@
+diff --git a/old_supergraph.graphql b/supergraph.graphql
+index 982e582..cc28ab7 100644
+--- a/old_supergraph.graphql
++++ b/supergraph.graphql
+@@ -43,4 +43,11 @@ type Query
+   @join__type(graph: PLACEHOLDER_GRAPH)
+ {
+   _empty: String
++  test: Testing
++}
++
++type Testing
++  @join__type(graph: PLACEHOLDER_GRAPH)
++{
++  empty: String
+ }
