@@ -8,6 +8,12 @@ source:
   graph:
     path: charts/graph
 
+schema:
+  repoURL: ghcr.io/diamondlightsource/graph-federation-supergraph
+  chart: supergraph
+  stableVersion: 0.1.1
+  nightlyVersion: 0.1.1
+
 destination:
   name: ""
   server: ""
