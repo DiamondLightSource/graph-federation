@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: supergraph-schema
+  name: {{ .Release.Name }}-supergraph-schema
 data:
   supergraph.graphql: |-
     {{ (.Files.Get .Values.supergraphPath) | nindent 4 }}

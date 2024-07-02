@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Install Rover CLI
         run: |
-          curl -sSL https://rover.apollo.dev/nix/v0.23.0-rc.3 | sh
+          curl -sSL https://rover.apollo.dev/nix/latest | sh
           echo "$HOME/.rover/bin" >> $GITHUB_PATH
 
       - name: Checkout Source
@@ -77,7 +77,7 @@ jobs:
     steps:
       - name: Install Rover CLI
         run: |
-          curl -sSL https://rover.apollo.dev/nix/v0.23.0-rc.3 | sh
+          curl -sSL https://rover.apollo.dev/nix/latest | sh
           echo "$HOME/.rover/bin" >> $GITHUB_PATH
 
       - name: Checkout main branch
@@ -90,21 +90,10 @@ jobs:
           rover supergraph compose
           --config supergraph-config.yaml
           --elv2-license=accept
-          > old_supergraph.graphql
-
-      - name: Upload Old Schema Artifact
-        uses: actions/upload-artifact@v4.3.3
-        with:
-          name: old_supergraph.graphql
-          path: old_supergraph.graphql
+          > /tmp/old_supergraph.graphql
 
       - name: Checkout Source
         uses: actions/checkout@v4.1.4
-
-      - name: Download old Schema Artifact
-        uses: actions/download-artifact@v4.1.7
-        with:
-          name: old_supergraph.graphql     
 
       - name: Compose New Supergraph Schema
         run: >
@@ -114,19 +103,12 @@ jobs:
           > supergraph.graphql
 
       - name: Generate Schema Diff
-        continue-on-error: true
         run: |
-          git diff --no-index old_supergraph.graphql supergraph.graphql > diff.md
-
-      - name: Check if Diff Exists
-        id: diff-check
-        run: |
+          git --no-pager diff --no-index --no-exit-code --minimal /tmp/old_supergraph.graphql supergraph.graphql > diff.md
           if [ -s diff.md ]; then echo "has_diff=true" >> $GITHUB_ENV; fi
-
-      - name: Format Diff into Markdown
-        run: |
+          sed -i 1,4d diff.md
           sed -i '1s/^/```diff\n/; $a```' diff.md
-        
+
       - name: Comment PR with artefact comparison report
         if: env.has_diff == 'true'
         uses: JoseThen/comment-pr@v1.2.0
