@@ -16,6 +16,8 @@ spec:
           router:
             router:
               configuration:
+                homepage:
+                  enabled: true
                 sandbox:
                   enabled: false
                 supergraph:
