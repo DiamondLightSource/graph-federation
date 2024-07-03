@@ -8,9 +8,9 @@ metadata:
 spec:
   project: {{ default .Release.Namespace .Values.project }}
   source:
-    repoURL: {{ .Values.source.repoURL }}
-    targetRevision: {{ .Values.source.targetRevision }}
-    path: {{ .Values.source.monitoring.path }}
+    repoURL: {{ .Values.monitoring.repoURL }}
+    targetRevision: {{ .Values.monitoring.targetRevision }}
+    path: {{ .Values.monitoring.path }}
   destination:
     name: {{ .Values.destination.name }}
     server: {{ .Values.destination.server }}

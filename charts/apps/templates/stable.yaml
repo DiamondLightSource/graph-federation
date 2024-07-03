@@ -7,35 +7,38 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: {{ default .Release.Namespace .Values.project }}
-  source:
-    repoURL: {{ .Values.source.repoURL }}
-    targetRevision: {{ .Values.source.targetRevision }}
-    path: {{ .Values.source.graph.path }}
-    helm:
-      valuesObject:
-        router:
+  sources:
+    - repoURL: {{ .Values.graph.repoURL }}
+      targetRevision: {{ .Values.graph.targetRevision }}
+      path: {{ .Values.graph.path }}
+      helm:
+        valuesObject:
           router:
-            configuration:
-              telemetry:
-                exporters:
-                  metrics:
-                    common:
-                      resource:
-                        "service.name": "router-stable"
-                    otlp:
-                      enabled: true
-                      endpoint: 'graph-monitoring-opentelemetry-collector:4317'
-                      protocol: grpc
-                  tracing:
-                    common:
-                      resource:
-                        "service.name": "router-stable"
-                    otlp:
-                      enabled: true
-                      endpoint: 'graph-monitoring-opentelemetry-collector:4317'
-                      protocol: grpc
-                    propagation:
-                      trace_context: true
+            router:
+              configuration:
+                telemetry:
+                  exporters:
+                    metrics:
+                      common:
+                        resource:
+                          "service.name": "router-stable"
+                      otlp:
+                        enabled: true
+                        endpoint: 'graph-monitoring-opentelemetry-collector:4317'
+                        protocol: grpc
+                    tracing:
+                      common:
+                        resource:
+                          "service.name": "router-stable"
+                      otlp:
+                        enabled: true
+                        endpoint: 'graph-monitoring-opentelemetry-collector:4317'
+                        protocol: grpc
+                      propagation:
+                        trace_context: true
+    - repoURL: {{ .Values.schema.repoURL }}
+      chart: {{ .Values.schema.chart }}
+      targetRevision: {{ .Values.schema.targetRevision }}
   destination:
     name: {{ .Values.destination.name }}
     server: {{ .Values.destination.server }}

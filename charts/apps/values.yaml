@@ -1,18 +1,19 @@
 project: ""
 
-source:
+monitoring:
   repoURL: https://github.com/DiamondLightSource/graph-federation
   targetRevision: HEAD
-  monitoring:
-    path: charts/monitoring
-  graph:
-    path: charts/graph
+  path: charts/monitoring
+
+graph:
+  repoURL: https://github.com/DiamondLightSource/graph-federation
+  targetRevision: HEAD
+  path: charts/graph
 
 schema:
   repoURL: ghcr.io/diamondlightsource/graph-federation-supergraph
+  targetRevision: 0.1.1
   chart: supergraph
-  stableVersion: 0.1.1
-  nightlyVersion: 0.1.1
 
 destination:
   name: ""

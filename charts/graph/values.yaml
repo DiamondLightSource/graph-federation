@@ -52,7 +52,7 @@ oauth2-proxy:
     pathType: Prefix
     hosts:
       - graph.diamond.ac.uk
-    path: /foo
+    path: /
   config:
     configFile: |-
       email_domains = [

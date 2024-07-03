@@ -2,4 +2,4 @@ apiVersion: v2
 name: graph
 description: ArgoCD Apps used to deploy the Graph
 type: application
-version: 0.1.0
+version: 0.1.1
