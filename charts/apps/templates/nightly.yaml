@@ -9,7 +9,7 @@ spec:
   project: {{ default .Release.Namespace .Values.project }}
   sources:
     - repoURL: {{ .Values.graph.repoURL }}
-      targetRevision: {{ .Values.graph.targetRevision }}
+      targetRevision: HEAD
       path: {{ .Values.graph.path }}
       helm:
         valuesObject:
@@ -45,7 +45,7 @@ spec:
               path: /nightly
     - repoURL: {{ .Values.schema.repoURL }}
       chart: {{ .Values.schema.chart }}
-      targetRevision: 0.1.1
+      targetRevision: "*"
   destination:
     name: {{ .Values.destination.name }}
     server: {{ .Values.destination.server }}

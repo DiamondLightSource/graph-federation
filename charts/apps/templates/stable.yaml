@@ -43,3 +43,7 @@ spec:
     name: {{ .Values.destination.name }}
     server: {{ .Values.destination.server }}
     namespace: {{ default .Release.Namespace .Values.destination.namespace }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
