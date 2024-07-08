@@ -16,7 +16,7 @@ jobs:
           echo "$HOME/.rover/bin" >> $GITHUB_PATH
 
       - name: Checkout Source
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.7
 
       - name: Compose Supergraph Schema
         run: >
@@ -26,7 +26,7 @@ jobs:
           > supergraph.graphql
 
       - name: Upload New Schema Artifact
-        uses: actions/upload-artifact@v4.3.3
+        uses: actions/upload-artifact@v4.3.4
         with:
           name: supergraph.graphql
           path: supergraph.graphql
@@ -42,13 +42,13 @@ jobs:
       packages: write
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.7
 
       - name: Setup Helm
-        uses: azure/setup-helm@v4.0.0
+        uses: azure/setup-helm@v4.2.0
 
       - name: Download Schema Artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v4.1.8
         with:
           name: supergraph.graphql     
           path: charts/supergraph
@@ -61,7 +61,7 @@ jobs:
 
       - name: Log in to GitHub Docker Registry
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3.0.0
+        uses: docker/login-action@v3.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -81,7 +81,7 @@ jobs:
           echo "$HOME/.rover/bin" >> $GITHUB_PATH
 
       - name: Checkout main branch
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.7
         with:
           ref: main
 
@@ -93,7 +93,7 @@ jobs:
           > /tmp/old_supergraph.graphql
 
       - name: Checkout Source
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.7
 
       - name: Compose New Supergraph Schema
         run: >
