@@ -123,6 +123,22 @@ We can write a resolver for the `Person`. A resolver function resolvers the valu
         }
     }
     ```
+We can also add additional fields to the Objects that are not initially defined in the struct using `Impl`. To add a new field
+`name` to the `Person` Object we implement a `name` function. 
+
+!!! example "Add name field to Person Object"
+
+    ```rust
+    impl Person {
+        async fn name(&self) -> String {
+            match self.preferred_name {
+                Some(preferred_name) => preferred_name.clone(),
+                None => format!("{} {}", self.first_name, self.last_name),
+            }    
+        }
+    }
+    ```
+
 Putting everything together, we should be able to run the follwing code, 
 
 !!! example "Simple GraphQL service to provide a Person information"
