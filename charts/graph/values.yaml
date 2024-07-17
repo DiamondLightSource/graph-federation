@@ -1,14 +1,13 @@
 router:
   enabled: true
-  managedFederation:
-    existingSecret: router-apikey
-    graphRef: data-gateway-n63jcf@current
-  args:
-    - --hot-reload
   podAnnotations:
     prometheus.io/scrape: "true"
     prometheus.io/port: "44180"
   router:
+    args:
+      - --hot-reload
+      - --supergraph
+      - /etc/apollo/supergraph.graphql
     configuration:
       sandbox:
         enabled: true
@@ -36,6 +35,17 @@ router:
         instrumentation:
           spans:
             mode: spec_compliant
+  extraVolumes:
+    - name: supergraph
+      configMap:
+        name: "{{ .Release.Name }}-supergraph-schema"
+        items:
+          - key: supergraph.graphql
+            path: supergraph.graphql
+  extraVolumeMounts:
+    - name: supergraph
+      mountPath: /etc/apollo/
+      readonly: true
   resources:
     requests:
       cpu: 8
