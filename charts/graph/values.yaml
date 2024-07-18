@@ -106,7 +106,7 @@ oauth2-proxy:
   extraVolumes:
     - name: client-secret
       secret:
-        secretName: oauth2-client
+        secretName: "{{ .Release.Name }}-oauth2-client"
         items:
           - key: secret
             path: client-secret
