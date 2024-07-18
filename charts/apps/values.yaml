@@ -7,7 +7,7 @@ monitoring:
 
 graph:
   repoURL: https://github.com/DiamondLightSource/graph-federation
-  targetRevision: HEAD
+  targetRevision: fix-secret-collision
   path: charts/graph
 
 schema:
