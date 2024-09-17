@@ -9,7 +9,7 @@ spec:
   project: {{ default .Release.Namespace .Values.project }}
   sources:
     - repoURL: {{ .Values.graph.repoURL }}
-      targetRevision: {{ .Values.graph.targetRevision }}
+      targetRevision: {{ .Values.graph.stableRevision }}
       path: {{ .Values.graph.path }}
       helm:
         valuesObject:
@@ -38,7 +38,7 @@ spec:
                         trace_context: true
     - repoURL: {{ .Values.schema.repoURL }}
       chart: {{ .Values.schema.chart }}
-      targetRevision: {{ .Values.schema.targetRevision }}
+      targetRevision: {{ .Values.schema.stableRevision | quote }}
   destination:
     name: {{ .Values.destination.name }}
     server: {{ .Values.destination.server }}

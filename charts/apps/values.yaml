@@ -7,12 +7,14 @@ monitoring:
 
 graph:
   repoURL: https://github.com/DiamondLightSource/graph-federation
-  targetRevision: HEAD
+  nightlyRevision: HEAD
+  stableRevision: HEAD
   path: charts/graph
 
 schema:
   repoURL: ghcr.io/diamondlightsource/graph-federation-supergraph
-  targetRevision: 0.1.2
+  nightlyRevision: "*"
+  stableRevision: 0.1.2
   chart: supergraph
 
 destination:
