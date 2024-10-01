@@ -104,7 +104,7 @@ jobs:
 
       - name: Generate Schema Diff
         run: |
-          git --no-pager diff --no-index --no-exit-code --minimal /tmp/old_supergraph.graphql supergraph.graphql > diff.md
+          git --no-pager diff --no-index --minimal /tmp/old_supergraph.graphql supergraph.graphql > diff.md || true
           if [ -s diff.md ]; then echo "has_diff=true" >> $GITHUB_ENV; fi
           sed -i 1,4d diff.md
           sed -i '1s/^/```diff\n/; $a```' diff.md
