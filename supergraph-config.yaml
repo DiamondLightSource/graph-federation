@@ -1,9 +1,5 @@
 federation_version: =2.8.0
 subgraphs:
-  placeholder-graph:
-    routing_url: http://localhost:4001
-    schema:
-      file: schema/placeholder.graphql
   workflows:
     routing_url: https://workflows.diamond.ac.uk/graphql
     schema:
