@@ -222,7 +222,9 @@ A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creati
             run: |
               git checkout -b workflows-${{ github.ref_name }}
               git add supergraph-config.yaml schema/workflows.graphql
-              git commit -m "Update workflows schema to ${{ github.ref_name }}"
+              if ! git diff --staged --quiet --exit-code supergraph-config.yaml schema/workflows.graphql; then
+                git commit -m "Update workflows schema to ${{ github.ref_name }}"
+              fi
 
           - name: Create PR
             if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
