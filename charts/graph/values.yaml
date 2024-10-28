@@ -65,6 +65,7 @@ oauth2-proxy:
     path: /
   config:
     configFile: |-
+      proxy_prefix = "/nightly/oauth2"
       email_domains = [
         "diamond.ac.uk"
       ]
