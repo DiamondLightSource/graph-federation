@@ -1,0 +1,42 @@
+name: Update Workflow
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  update:
+    # Deduplicate jobs from pull requests and branch pushes within the same repo.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4.2.1
+
+      - name: Create Test Subgraph schema
+        run: >
+          echo "
+            schema {
+              query: Query
+            }
+            type Query {
+              _empty: String
+            }
+          " > test-schema.graphql
+
+      - name: Upload Test Subgraph schema
+        uses: actions/upload-artifact@v4.4.3
+        with:
+          name: test-schema
+          path: test-schema.graphql
+
+      - name: Update Supergraph
+        uses: ./workflows/update
+        with:
+          name: test
+          routing-url: https://example.com/graphql
+          subgraph-schema-artifact: test-schema
+          subgraph-schema-filename: test-schema.graphql
+          github-app-id: 1010045
+          github-app-private-key: ${{ secrets.GRAPH_FEDERATOR }}
+          publish: false
