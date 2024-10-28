@@ -10,13 +10,50 @@ scalar DateTime
 
 
 """
+A scalar that can represent any JSON value.
+"""
+scalar JSON
+
+"""
+The root mutation of the service
+"""
+type Mutation {
+	submitWorkflowTemplate(name: String!, visit: VisitInput!, parameters: JSON!): Workflow!
+}
+
+"""
+Information about pagination in a connection
+"""
+type PageInfo @shareable {
+	"""
+	When paginating backwards, are there more items?
+	"""
+	hasPreviousPage: Boolean!
+	"""
+	When paginating forwards, are there more items?
+	"""
+	hasNextPage: Boolean!
+	"""
+	When paginating backwards, the cursor to continue.
+	"""
+	startCursor: String
+	"""
+	When paginating forwards, the cursor to continue.
+	"""
+	endCursor: String
+}
+
+"""
 The root query of the service
 """
 type Query {
 	"""
 	Get a single [`Workflow`] by proposal, visit, and name
 	"""
-	workflow(proposalCode: String!, proposalNumber: Int!, visit: Int!, name: String!): Workflow!
+	workflow(visit: VisitInput!, name: String!): Workflow!
+	workflows(visit: VisitInput!, cursor: String, limit: Int): WorkflowConnection!
+	workflowTemplate(name: String!): WorkflowTemplate!
+	workflowTemplates(cursor: String, limit: Int): WorkflowTemplateConnection!
 }
 
 
@@ -57,6 +94,42 @@ enum TaskStatus {
 }
 
 """
+A visit to an instrument as part of a session
+"""
+type Visit {
+	"""
+	Project Proposal Code
+	"""
+	proposalCode: String!
+	"""
+	Project Proposal Number
+	"""
+	proposalNumber: Int!
+	"""
+	Session visit Number
+	"""
+	number: Int!
+}
+
+"""
+A visit to an instrument as part of a session
+"""
+input VisitInput {
+	"""
+	Project Proposal Code
+	"""
+	proposalCode: String!
+	"""
+	Project Proposal Number
+	"""
+	proposalNumber: Int!
+	"""
+	Session visit Number
+	"""
+	number: Int!
+}
+
+"""
 A Workflow consisting of one or more [`Task`]s
 """
 type Workflow {
@@ -65,9 +138,42 @@ type Workflow {
 	"""
 	name: String!
 	"""
+	The visit the Workflow was run against
+	"""
+	visit: Visit!
+	"""
 	The time at which the workflow began running
 	"""
-	status: WorkflowStatus!
+	status: WorkflowStatus
+}
+
+type WorkflowConnection @shareable {
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	"""
+	A list of edges.
+	"""
+	edges: [WorkflowEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [Workflow!]!
+}
+
+"""
+An edge in a connection.
+"""
+type WorkflowEdge @shareable {
+	"""
+	The item at the end of the edge
+	"""
+	node: Workflow!
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
 }
 
 """
@@ -86,9 +192,6 @@ type WorkflowErroredStatus {
 	A human readable message indicating details about why the workflow is in this condition
 	"""
 	message: String
-	"""
-	Tasks created by the workflow
-	"""
 	tasks: [Task!]!
 }
 
@@ -108,9 +211,6 @@ type WorkflowFailedStatus {
 	A human readable message indicating details about why the workflow is in this condition
 	"""
 	message: String
-	"""
-	Tasks created by the workflow
-	"""
 	tasks: [Task!]!
 }
 
@@ -136,9 +236,6 @@ type WorkflowRunningStatus {
 	A human readable message indicating details about why the workflow is in this condition
 	"""
 	message: String
-	"""
-	Tasks created by the workflow
-	"""
 	tasks: [Task!]!
 }
 
@@ -163,10 +260,66 @@ type WorkflowSucceededStatus {
 	A human readable message indicating details about why the workflow is in this condition
 	"""
 	message: String
-	"""
-	Tasks created by the workflow
-	"""
 	tasks: [Task!]!
+}
+
+"""
+A Template which specifies how to produce a [`Workflow`]
+"""
+type WorkflowTemplate {
+	"""
+	The name given to the workflow template, globally unique
+	"""
+	name: String!
+	"""
+	The group who maintains the workflow template
+	"""
+	maintainer: String!
+	"""
+	A human readable title for the workflow template
+	"""
+	title: String
+	"""
+	A human readable description of the workflow which is created
+	"""
+	description: String
+	"""
+	A JSON Schema describing the arguments of a Workflow Template
+	"""
+	arguments: JSON!
+	"""
+	A JSON Forms UI Schema describing how to render the arguments of the Workflow Template
+	"""
+	uiSchema: JSON
+}
+
+type WorkflowTemplateConnection @shareable {
+	"""
+	Information to aid in pagination.
+	"""
+	pageInfo: PageInfo!
+	"""
+	A list of edges.
+	"""
+	edges: [WorkflowTemplateEdge!]!
+	"""
+	A list of nodes.
+	"""
+	nodes: [WorkflowTemplate!]!
+}
+
+"""
+An edge in a connection.
+"""
+type WorkflowTemplateEdge @shareable {
+	"""
+	The item at the end of the edge
+	"""
+	node: WorkflowTemplate!
+	"""
+	A cursor for use in pagination
+	"""
+	cursor: String!
 }
 
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
