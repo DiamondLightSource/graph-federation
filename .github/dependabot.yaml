@@ -1,7 +1,9 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - .github/workflows
+      - workflows/compose
     schedule:
       interval: weekly
     open-pull-requests-limit: 100
@@ -13,4 +15,3 @@ updates:
         update-types:
           - minor
           - patch
-
