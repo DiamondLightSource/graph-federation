@@ -4,3 +4,7 @@ subgraphs:
     routing_url: https://workflows.diamond.ac.uk/graphql
     schema:
       file: schema/workflows.graphql
+  test:
+    routing_url: https://example.com/graphql
+    schema:
+      file: schema/test.graphql
