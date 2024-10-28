@@ -85,9 +85,9 @@ As part of our continuous integration process on GitHub, we can use the [`diamon
 
 To update the deployed supergraph schema, we should create a Pull Request to the [`graph-federation` repository](https://github.com/DiamondLightSource/graph-federation/) with the desired subgraph schema and relevant configuration changes.
 
-### GitHub Applications
+### GitHub CI
 
-A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps) can be created in order to act as a bot account capable of pushing to branches and creating Pull Requests from the GitHub actions of another repository.
+A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps) can be created in order to act as a bot account capable of pushing to branches and creating Pull Requests from the GitHub actions of another repository. The [`diamondlightsource/graph-federation/workflows/update`] action can be used to perform the necessary schema composition, branch update, and pull request generation.
 
 !!! tip
 
@@ -96,120 +96,16 @@ A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creati
 !!! example "Full GitHub Actions Workflow"
 
     ```yaml
-    name: Graph Proxy Schema
-
-    on:
-      push:
-      pull_request:
-
     jobs:
-      generate_schema:
-        # Deduplicate jobs from pull requests and branch pushes within the same repo.
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
-        runs-on: ubuntu-latest
-        env:
-          ARGO_SERVER_SCHEMA_URL: <https://raw.githubusercontent.com/argoproj/argo-workflows/main/api/jsonschema/schema.json>
-        steps:
-          - name: Checkout source
-            uses: actions/checkout@v4.1.7
-
-          - name: Install stable toolchain
-            uses: actions-rust-lang/setup-rust-toolchain@v1.10.0
-
-          - name: Cache Rust Build
-            uses: Swatinem/rust-cache@v2.7.3
-
-          - name: Generate Schema
-            run: >
-              cargo run
-              schema
-              --path workflows.graphql
-            working-directory: graph-proxy
-
-          - name: Upload Schema Artifact
-            uses: actions/upload-artifact@v4.4.0
-            with:
-              name: graphql-schema
-              path: ./graph-proxy/workflows.graphql
-
-      federate:
-        # Deduplicate jobs from pull requests and branch pushes within the same repo.
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+      update:
         runs-on: ubuntu-latest
         needs: generate_schema
-        steps:
-          - name: Create GitHub App Token
-            id: app-token
-            uses: actions/create-github-app-token@v1.11.0
-            with:
-              app-id: 1010045
-              private-key: ${{ secrets.GRAPH_FEDERATOR }}
-              repositories: graph-federation
-
-          - name: Create GitHub App Committer String
-            id: get-user-id
-            run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
-            env:
-              GH_TOKEN: ${{ steps.app-token.outputs.token }}
-
-          - name: Checkout Graph Federation source
-            uses: actions/checkout@v4.1.7
-            with:
-              repository: DiamondLightSource/graph-federation
-              token: ${{ steps.app-token.outputs.token }}
-
-          - name: Download Schema Artifact
-            uses: actions/download-artifact@v4.1.8
-            with:
-              name: graphql-schema
-              path: schema
-
-          - name: Add Subgraph workflows to Supergraph config
-            run: >
-              yq -i
-              '
-              .subgraphs.workflows={
-                "routing_url":"https://workflows.diamond.ac.uk/graphql",
-                "schema":{
-                  "file":"schema/workflows.graphql"
-                }
-              }
-              '
-              supergraph-config.yaml
-
-          - name: Install Rover CLI
-            run: |
-              curl -sSL https://rover.apollo.dev/nix/latest | sh
-              echo "$HOME/.rover/bin" >> $GITHUB_PATH
-
-          - name: Compose Supergraph Schema
-            run: >
-              rover supergraph compose
-              --config supergraph-config.yaml
-              --elv2-license=accept
-              > supergraph.graphql
-
-          - name: Configure Git
-            run: |
-              git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
-              git config user.email "${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
-
-          - name: Create commit
-            run: |
-              git checkout -b workflows-${{ github.ref_name }}
-              git add supergraph-config.yaml schema/workflows.graphql
-              if ! git diff --staged --quiet --exit-code supergraph-config.yaml schema/workflows.graphql; then
-                git commit -m "Update workflows schema to ${{ github.ref_name }}"
-              fi
-
-          - name: Create PR
-            if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-            run: |
-              git push origin workflows-${{ github.ref_name }}
-              gh auth login --with-token <<< ${{ steps.app-token.outputs.token }}
-              gh pr create \
-                --title "chore: Update Workflows subgraph to ${{ github.ref_name }}" \
-                --body "" \
-                --head workflows-${{ github.ref_name }} \
-                --base main
+        uses: diamondlightsource/graph-federation/workflows/update@v1
+        with:
+          name: example
+          routing-url: https://example.com/graphql
+          subgraph-schema-artifact: ${{ jobs.generate_schema.artifact }}
+          subgraph-schema-artifact: ${{ jobs.generate_schema.filename }}
+          github-app-id: 1010045
+          github-app-private-key: ${{ secrets.GRAPH_FEDERATOR }}
     ```
