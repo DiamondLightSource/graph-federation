@@ -45,7 +45,9 @@ It is useful to upload the schema as an artifact to allow download both in futur
 
 ## Check Schema Validity
 
-To check our schema is valid we will use the [Apollo Rover CLI](https://www.apollographql.com/docs/rover/).
+### Locally
+
+During local development, to check our schema is valid we will use the [Apollo Rover CLI](https://www.apollographql.com/docs/rover/).
 We can retrieve the exisitng schema and configuration by cloning the [`graph-federation` repository](https://github.com/DiamondLightSource/graph-federation/) - in which we will find a `supergraph-config.yaml` file describing the federation and a number of schemas in the `schema/` directory.
 
 Once cloned, we can add our subgraph definition to the `schema/` directory and a descriptor to the `supergraph-config.yaml`.
@@ -60,6 +62,10 @@ We can now use the `Apollo Rover CLI` to compose the supergraph, as:
 rover supergraph compose --config supergraph-config.yaml --elv2-license accept
 ```
 
+### GitHub CI
+
+As part of our continuous integration process on GitHub, we can use the [`diamondlightsource/graph-federation/workflows/compose`](https://github.com/DiamondLightSource/graph-federation/tree/main/workflows/compose) action in GitHub actions.
+
 !!! example "GitHub Actions Validity Checking"
 
     ```yaml
@@ -67,42 +73,12 @@ rover supergraph compose --config supergraph-config.yaml --elv2-license accept
       federate:
         runs-on: ubuntu-latest
         needs: generate_schema
-        steps:
-          - name: Checkout Graph Federation source
-            uses: actions/checkout@v4.1.7
-            with:
-              repository: DiamondLightSource/graph-federation
-
-          - name: Download Schema Artifact
-            uses: actions/download-artifact@v4.1.8
-            with:
-              name: graphql-schema
-              path: schema
-
-          - name: Add Subgraph workflows to Supergraph config
-            run: >
-              yq -i
-              '
-              .subgraphs.workflows={
-                "routing_url":"https://workflows.diamond.ac.uk/graphql",
-                "schema":{
-                  "file":"schema/workflows.graphql"
-                }
-              }
-              '
-              supergraph-config.yaml
-
-          - name: Install Rover CLI
-            run: |
-              curl -sSL https://rover.apollo.dev/nix/latest | sh
-              echo "$HOME/.rover/bin" >> $GITHUB_PATH
-
-          - name: Compose Supergraph Schema
-            run: >
-              rover supergraph compose
-              --config supergraph-config.yaml
-              --elv2-license=accept
-              > supergraph.graphql
+        uses: diamondlightsource/graph-federation/workflows/compose@v1
+        with:
+          name: example
+          routing-url: https://example.com/graphql
+          subgraph-schema-artifact: ${{ jobs.generate_schema.artifact }}
+          subgraph-schema-artifact: ${{ jobs.generate_schema.filename }}
     ```
 
 ## Pull Request Generation
