@@ -1,0 +1,99 @@
+name: Update Supergraph
+description: Perform Supergraph composition with appropraite subgraph schema and metadata and create PR
+
+inputs:
+  name:
+    description: A unique name given to the subgraph
+    required: true
+  routing-url:
+    description: The public-facing URL of the subgraph
+    required: true
+  subgraph-schema-artifact:
+    description: The name of an artifact from this workflow run containing the subgraph schema
+    required: true
+  subgraph-schema-filename:
+    description: The name of the subgraph schema file within the artifact
+    required: true
+  supergraph-schema-artifact:
+    description: The name of the artifact to be created containing the supergraph schema
+    required: true
+    default: supergraph
+  supergraph-schema-filename:
+    description: The name of the supergraph schema file within the created artifact
+    required: true
+    default: supergraph.graphql
+  github-app-id:
+    description: The ID of the GitHub App used to create the commit / pull request
+    required: true
+  github-app-private-key:
+    description: The private key of the GitHub App used to create the commit / pull request
+    required: true
+  publish:
+    description: A boolean value which determines whether a pull request should be created
+    required: true
+    default: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags') }}
+
+outputs:
+  supergraph-schema-artifact-id:
+    description: The id of the artifact containing the supergraph schema
+    value: ${{ steps.compose.outputs.artifact-id }}
+  supergraph-schema-artifact-url:
+    description: The url of the artifact containing the supergraph schema
+    value: ${{ steps.compose.outputs.artifact-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Compose Supergraph Schema
+      id: compose
+      uses: ./workflows/compose
+      with:
+        name: ${{ inputs.name }}
+        routing-url: ${{ inputs.routing-url }}
+        subgraph-schema-artifact: ${{ inputs.subgraph-schema-artifact }}
+        subgraph-schema-filename: ${{ inputs.subgraph-schema-filename }}
+        supergraph-schema-artifact: ${{ inputs.supergraph-schema-artifact }}
+        supergraph-schema-filename: ${{ inputs.supergraph-schema-filename }}
+
+    - name: Create GitHub App Token
+      id: app-token
+      uses: actions/create-github-app-token@v1.11.0
+      with:
+        app-id: ${{ inputs.github-app-id }}
+        private-key: ${{ inputs.github-app-private-key }}
+        repositories: graph-federation
+
+    - name: Create GitHub App Committer String
+      id: get-user-id
+      shell: bash
+      run: echo "user-id=$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)" >> "$GITHUB_OUTPUT"
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+    - name: Configure Git
+      shell: bash
+      run: |
+        git config user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+        git config user.email "${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+
+    - name: Create commit
+      shell: bash
+      run: |
+        git checkout -b ${{ inputs.name }}-${{ github.ref_name }}
+        git fetch
+        git add supergraph-config.yaml schema/${{ inputs.name }}.graphql
+        if ! git diff --staged --quiet --exit-code supergraph-config.yaml schema/${{ inputs.name }}.graphql; then
+          git commit -m "Update ${{ inputs.name }} schema to ${{ github.ref_name }}"
+        fi
+
+    - name: Create PR
+      if: ${{ inputs.publish == 'true' }}
+      shell: bash
+      run: |
+        git push origin ${{ inputs.name }}-${{ github.ref_name }} --force-with-lease
+        gh auth login --with-token <<< ${{ steps.app-token.outputs.token }}
+        gh pr create \
+          --title "chore: Update ${{ inputs.name }} subgraph to ${{ github.ref_name }}" \
+          --body "" \
+          --head ${{ inputs.name }}-${{ github.ref_name }} \
+          --base main
