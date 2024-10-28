@@ -14,4 +14,5 @@ Docs can be found [on github pages](https://diamondlightsource.github.io/graph-f
 - `charts/monitoring`: A Helm chart used to deploy [Prometheus](https://prometheus.io/) and [Jaeger](https://www.jaegertracing.io/) for observability
 - `charts/supergraph`: A Helm chart used to deploy the supergraph schema
 - `workflows/compose`: A [GitHub action](https://github.com/features/actions) used to perform schema composition
+- `workflows/update`: A [GitHub action](https://github.com/features/actions) used to create subgraph schema update pull requests
 - `mkdocs.yaml` & `docs/`: User facing documentation, built with [mkdocs](https://www.mkdocs.org/)
