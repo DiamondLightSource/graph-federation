@@ -1,0 +1,85 @@
+name: Compose Supergraph
+description: Perform supergraph composition with appropraite subgraph schema and metadata
+
+inputs:
+  name:
+    description: A unique name given to the subgraph
+    required: true
+  routing-url:
+    description: The public-facing URL of the subgraph
+    required: true
+  subgraph-schema-artifact:
+    description: The name of an artifact from this workflow run containing the subgraph schema
+    required: true
+  subgraph-schema-filename:
+    description: The name of the subgraph schema file within the artifact
+    required: true
+  supergraph-schema-artifact:
+    description: The name of the artifact to be created containing the supergraph schema
+    required: true
+    default: supergraph
+  supergraph-schema-filename:
+    description: The name of the supergraph schema file within the created artifact
+    required: true
+    default: supergraph.graphql
+
+outputs:
+  supergraph-schema-artifact-id:
+    description: The id of the artifact containing the supergraph schema
+    value: ${{ steps.supergraph-artifact.outputs.artifact-id }}
+  supergraph-schema-artifact-url:
+    description: The url of the artifact containing the supergraph schema
+    value: ${{ steps.supergraph-artifact.outputs.artifact-url }}
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout Graph Federation source
+      uses: actions/checkout@v4.2.2
+      with:
+        repository: DiamondLightSource/graph-federation
+
+    - name: Download Subgraph schema
+      uses: actions/download-artifact@v4.1.8
+      with:
+        name: ${{ inputs.subgraph-schema-artifact }}
+        path: /tmp/schema/
+
+    - name: Add Subgraph schema to schema/ directory
+      shell: bash
+      run: mv /tmp/schema/${{ inputs.subgraph-schema-filename}} schema/${{ inputs.name }}.graphql
+
+    - name: Add Subgraph workflows to Supergraph config
+      shell: bash
+      run: >
+        yq -i
+        '
+        .subgraphs.${{ inputs.name }}={
+          "routing_url":"${{ inputs.routing-url}}",
+          "schema":{
+            "file":"schema/${{ inputs.name }}.graphql"
+          }
+        }
+        '
+        supergraph-config.yaml
+
+    - name: Install Rover CLI
+      shell: bash
+      run: |
+        curl -sSL https://rover.apollo.dev/nix/latest | sh
+        echo "$HOME/.rover/bin" >> $GITHUB_PATH
+
+    - name: Compose Supergraph Schema
+      shell: bash
+      run: >
+        rover supergraph compose
+        --config supergraph-config.yaml
+        --elv2-license=accept
+        > ${{ inputs.supergraph-schema-filename }}
+
+    - name: Upload Supergraph Artifact
+      id: supergraph-artifact
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: ${{ inputs.supergraph-schema-artifact }}
+        path: ./${{ inputs.supergraph-schema-filename }}
