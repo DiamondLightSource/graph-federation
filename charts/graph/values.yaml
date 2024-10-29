@@ -65,6 +65,7 @@ oauth2-proxy:
     path: /
   config:
     configFile: |-
+      skip_provider_button = true
       email_domains = [
         "diamond.ac.uk"
       ]
