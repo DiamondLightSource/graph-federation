@@ -16,12 +16,6 @@ spec:
           router:
             router:
               configuration:
-                homepage:
-                  enabled: true
-                sandbox:
-                  enabled: false
-                supergraph:
-                  path: /nightly
                 telemetry:
                   exporters:
                     metrics:
@@ -44,7 +38,24 @@ spec:
                         trace_context: true
           oauth2-proxy:
             ingress:
-              path: /nightly
+              hostname: graph-nightly.diamond.ac.uk
+              hosts:
+                - graph-nightly.diamond.ac.uk
+            alphaConfig:
+              configData:
+                providers:
+                  - provider: oidc
+                    scope: "openid profile email fedid"
+                    clientId: graph-nightly
+                    clientSecretFile: /etc/alpha/client-secret
+                    id: authn
+                    oidcConfig:
+                      issuerURL: https://authn.diamond.ac.uk/realms/dls
+                      insecureAllowUnverifiedEmail: true
+                      audienceClaims:
+                        - aud
+                      emailClaim: email
+                      userIDClaim: email
     - repoURL: {{ .Values.schema.repoURL }}
       chart: {{ .Values.schema.chart }}
       targetRevision: {{ .Values.schema.nightlyRevision | quote }}
