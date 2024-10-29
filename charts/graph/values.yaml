@@ -75,12 +75,7 @@ oauth2-proxy:
       ]
   alphaConfig:
     enabled: true
-    configFile: |
-      upstreamConfig:
-        upstreams:
-          - id: router
-            path: /
-            uri: http://{{ .Release.Name }}-router:80
+    configData:
       injectRequestHeaders:
         - name: Authorization
           values:
@@ -104,6 +99,12 @@ oauth2-proxy:
               - aud
             emailClaim: email
             userIDClaim: email
+    configFile: |
+      upstreamConfig:
+        upstreams:
+          - id: router
+            path: /
+            uri: http://{{ .Release.Name }}-router:80
   extraVolumes:
     - name: client-secret
       secret:
