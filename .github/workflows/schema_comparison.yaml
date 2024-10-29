@@ -1,0 +1,49 @@
+name: Create Schema Comparison Comment
+
+on:
+  pull_request:
+
+jobs:
+  compare_schema:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rover CLI
+        run: |
+          curl -sSL https://rover.apollo.dev/nix/latest | sh
+          echo "$HOME/.rover/bin" >> $GITHUB_PATH
+
+      - name: Checkout main branch
+        uses: actions/checkout@v4.2.2
+        with:
+          ref: main
+
+      - name: Compose old Supergraph Schema
+        run: >
+          rover supergraph compose
+          --config supergraph-config.yaml
+          --elv2-license=accept
+          > /tmp/old_supergraph.graphql
+
+      - name: Checkout Source
+        uses: actions/checkout@v4.2.2
+
+      - name: Compose New Supergraph Schema
+        run: >
+          rover supergraph compose
+          --config supergraph-config.yaml
+          --elv2-license=accept
+          > supergraph.graphql
+
+      - name: Generate Schema Diff
+        run: |
+          git --no-pager diff --no-index --minimal /tmp/old_supergraph.graphql supergraph.graphql > diff.md || true
+          if [ -s diff.md ]; then echo "has_diff=true" >> $GITHUB_ENV; fi
+          sed -i 1,4d diff.md
+          sed -i '1s/^/```diff\n/; $a```' diff.md
+
+      - name: Comment PR with artefact comparison report
+        if: env.has_diff == 'true'
+        uses: JoseThen/comment-pr@v1.2.0
+        with:
+          file_path: diff.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
