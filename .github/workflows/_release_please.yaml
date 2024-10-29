@@ -1,0 +1,36 @@
+name: Release Please
+
+on:
+  workflow_call:
+    outputs:
+      apps-chart-released:
+        value: ${{ jobs.release_please.apps-chart-released }}
+      graph-chart-released:
+        value: ${{ jobs.release_please.graph-chart-released }}
+      monitoring-chart-released:
+        value: ${{ jobs.release_please.monitoring-chart-released }}
+      supergraph-chart-released:
+        value: ${{ jobs.release_please.supergraph-chart-released }}
+
+jobs:
+  release_please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      apps-chart-released: ${{ contains(steps.release.outputs.paths_released, 'charts/apps') }}
+      graph-chart-released: ${{ contains(steps.release.outputs.paths_released, 'charts/graph') }}
+      monitoring-chart-released: ${{ contains(steps.release.outputs.paths_released, 'charts/monitoring') }}
+      supergraph-chart-released: ${{ contains(steps.release.outputs.paths_released, 'charts/supergraph') }}
+    steps:
+      - name: Release Please
+        id: release
+        uses: googleapis/release-please-action@v4.1.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Release Please Outputs
+        run: echo "${{ toJson(steps.release.outputs) }}"
