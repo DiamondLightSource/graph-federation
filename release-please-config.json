@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "ee1cb51e2177608be9e291f6bde17ca5d867016e",
+  "include-component-in-tag": true,
+  "include-v-in-tag": true,
+  "tag-separator": "@",
+  "separate-pull-requests": true,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "packages": {
+    "charts/apps": {
+      "release-type": "helm",
+      "release-as": "0.2.2"
+    },
+    "charts/graph": {
+      "release-type": "helm",
+      "release-as": "0.11.1"
+    },
+    "charts/monitoring": {
+      "release-type": "helm",
+      "release-as": "0.2.0"
+    },
+    "charts/supergraph": {
+      "release-type": "helm",
+      "release-as": "1.0.0"
+    }
+  }
+}
