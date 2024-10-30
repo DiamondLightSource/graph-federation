@@ -23,6 +23,16 @@
     "charts/supergraph": {
       "release-type": "helm",
       "release-as": "1.0.0"
+    },
+    "workflows/compose": {
+      "package-name": "compose",
+      "release-type": "simple",
+      "release-as": "0.1.0"
+    },
+    "workflows/update": {
+      "package-name": "update",
+      "release-type": "simple",
+      "release-as": "0.1.0"
     }
   }
 }
