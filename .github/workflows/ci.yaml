@@ -30,8 +30,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    with:
-      publish: ${{ needs.release_please.outputs.supergraph-chart-released == 'true' }}
 
   compose_workflow:
     # Deduplicate jobs from pull requests and branch pushes within the same repo.
