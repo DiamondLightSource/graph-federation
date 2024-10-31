@@ -77,6 +77,7 @@ runs:
         git config user.email "${{ steps.get-user-id.outputs.user-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
 
     - name: Create commit
+      id: commit
       shell: bash
       run: |
         git checkout -b ${{ inputs.name }}-${{ github.ref_name }}
@@ -84,10 +85,11 @@ runs:
         git add supergraph-config.yaml schema/${{ inputs.name }}.graphql
         if ! git diff --staged --quiet --exit-code supergraph-config.yaml schema/${{ inputs.name }}.graphql; then
           git commit -m "Update ${{ inputs.name }} schema to ${{ github.ref_name }}"
+          echo "changed=true" >> $GITHUB_OUTPUT
         fi
 
     - name: Create PR
-      if: ${{ inputs.publish == 'true' }}
+      if: inputs.publish == 'true' && steps.commit.outputs.changed == 'true'
       shell: bash
       run: |
         git push origin ${{ inputs.name }}-${{ github.ref_name }} --force-with-lease
