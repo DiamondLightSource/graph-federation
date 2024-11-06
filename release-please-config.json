@@ -22,7 +22,12 @@
     },
     "charts/supergraph": {
       "release-type": "helm",
-      "release-as": "1.0.0"
+      "component": "supergraph"
+    },
+    "schema": {
+      "package-name": "supergraph-schema",
+      "release-type": "simple",
+      "component": "supergraph-schema"
     },
     "workflows/compose": {
       "package-name": "compose",
@@ -34,5 +39,15 @@
       "release-type": "simple",
       "release-as": "0.1.0"
     }
-  }
+  },
+  "plugins": [
+    {
+      "type": "linked-versions",
+      "groupName": "supergraph",
+      "components": [
+        "supergraph",
+        "supergraph-schema"
+      ]
+    }
+  ]
 }
