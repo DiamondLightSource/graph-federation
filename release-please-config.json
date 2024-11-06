@@ -1,0 +1,33 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "include-component-in-tag": true,
+  "include-v-in-tag": true,
+  "tag-separator": "@",
+  "separate-pull-requests": true,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "packages": {
+    "charts/apps": {
+      "release-type": "helm"
+    },
+    "charts/graph": {
+      "release-type": "helm"
+    },
+    "charts/monitoring": {
+      "release-type": "helm"
+    },
+    "charts/supergraph": {
+      "release-type": "helm",
+      "additional-paths": [
+        "supergraph-config.yaml",
+        "schema/"
+      ]
+    },
+    "workflows/compose": {
+      "release-type": "go"
+    },
+    "workflows/update": {
+      "release-type": "go"
+    }
+  }
+}
