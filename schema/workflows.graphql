@@ -177,7 +177,7 @@ type WorkflowEdge @shareable {
 }
 
 """
-The controller has encountered an error whilst scheduling the workflow
+All tasks in the workflow have errored
 """
 type WorkflowErroredStatus {
 	"""
@@ -196,7 +196,7 @@ type WorkflowErroredStatus {
 }
 
 """
-A task in the workflow has completed with a non-zero exit code
+All tasks in the workflow have failed
 """
 type WorkflowFailedStatus {
 	"""
@@ -245,7 +245,7 @@ The status of a workflow
 union WorkflowStatus = WorkflowPendingStatus | WorkflowRunningStatus | WorkflowSucceededStatus | WorkflowFailedStatus | WorkflowErroredStatus
 
 """
-All tasks in the workflow have succeeded
+All tasks in the workflow have succeded
 """
 type WorkflowSucceededStatus {
 	"""
@@ -263,9 +263,6 @@ type WorkflowSucceededStatus {
 	tasks: [Task!]!
 }
 
-"""
-A Template which specifies how to produce a [`Workflow`]
-"""
 type WorkflowTemplate {
 	"""
 	The name given to the workflow template, globally unique
