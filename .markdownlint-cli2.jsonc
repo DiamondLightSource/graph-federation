@@ -1,0 +1,11 @@
+{
+  "config": {
+    "MD013": false, // Disabled because long lines are useful
+    "MD046": false // Disabled because of conflicts with admonitions
+  },
+  "markdownItPlugins": [
+    [
+      "markdown-it-admon"
+    ]
+  ]
+}
