@@ -170,7 +170,7 @@ This will generate a string in the [GraphQL Schema Language](https://graphql.org
     You will likely want to create a program entrypoint or CLI option which writes the schema to a file.
 
 !!! example "Schema Generation"
-    
+
     ```python
     from strawberry.federation import Schema
     from strawberry.printer import print_schema

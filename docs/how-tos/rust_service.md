@@ -15,7 +15,7 @@ We will cover:
 This guide will utilize the following dependencies:
 
 - `axum` as the HTTP server
-- `async-graphql` as graphql server library 
+- `async-graphql` as graphql server library
 - `async-graphql-axum` for GraphQL request handling
 - `tokio` as runtime for writing asynchronous rust program with macros and rt-multi-thread feature enabled
 
@@ -23,7 +23,6 @@ This guide will utilize the following dependencies:
 
     `async-graphql` provides a high-performance server-side implementation of the GraphQL specification.
     It is designed to leverage Rust's asynchronous programming capabilities (using Tokio or async-std) to handle GraphQL queries efficiently and concurrently.
-
 
 ```toml
 [dependencies]
@@ -77,7 +76,7 @@ To handle GraphQL requests, we start by creating a server with a placeholder Gra
 data and converts it into a form that can be processed by async-graphql.
 
 `GraphQLResponse` wraps the results of executing a GraphQL query. It ensures
-that the response is correctly formatted as a valid HTTP response that Axum can 
+that the response is correctly formatted as a valid HTTP response that Axum can
 send back to the client.
 
 ## Defining Objects
@@ -103,6 +102,7 @@ struct Person {
     preferred_name: Option<String>,
 }
 ```
+
 We can write a resolver for the `Person`. A resolver function resolvers the values for all the fields a GraphQL object.
 
 !!! example "Defind Object and a Resolver"
@@ -124,7 +124,7 @@ We can write a resolver for the `Person`. A resolver function resolvers the valu
     }
     ```
 We can also add additional fields to the Objects that are not initially defined in the struct using `Impl`. To add a new field
-`name` to the `Person` Object we implement a `name` function. 
+`name` to the `Person` Object we implement a `name` function.
 
 !!! example "Add name field to Person Object"
 
@@ -139,7 +139,7 @@ We can also add additional fields to the Objects that are not initially defined 
     }
     ```
 
-Putting everything together, we should be able to run the follwing code, 
+Putting everything together, we should be able to run the follwing code,
 
 !!! example "Simple GraphQL service to provide a Person information"
 
@@ -194,6 +194,7 @@ Putting everything together, we should be able to run the follwing code,
     }
     ```
 When we send request to the endpoint `curl -X POST -H "Content-Type: application/json" -d '{"query":"{ person {id, firstName, lastName, preferredName} }"}' http://127.0.0.1:8000/graphql` we should get the following response
+
 ```json
 {
     "data":{
@@ -212,7 +213,7 @@ When we send request to the endpoint `curl -X POST -H "Content-Type: application
 Most of the fields of a GraphQL object directly return the value of the field,
 but sometimes the the fields are calculated or resolved by a different resolver.
 In such cases, we can use the `ComplexObject` macro to write a user defined resolver.
-This can be useful when we want to resolve related Objects. 
+This can be useful when we want to resolve related Objects.
 We need to use `complex` macro on `Person` struct for the `ComplexObject` macro to take effect.
 
 !!! example "Related Objects"
@@ -244,9 +245,10 @@ We need to use `complex` macro on `Person` struct for the `ComplexObject` macro 
     }
     ```
 
-Now the `Person` object should have a `pet` field that resolvers a `Pet` object. When we send request to the endpoint, 
+Now the `Person` object should have a `pet` field that resolvers a `Pet` object. When we send request to the endpoint,
 `curl -X POST -H "Content-Type: application/json" -d '{"query":"{ person {id, pet {id}} }"}' http://127.0.0.1:8000/graphql`
 we should get the following response
+
 ```json
 {
     "data":{
@@ -259,6 +261,7 @@ we should get the following response
 ```
 
 ## Federated
+
 !!! info
 
     Refer to [Async-graphql Book Apollo Federation](https://async-graphql.github.io/async-graphql/en/apollo_federation.html) for a full explanation on federation using rust. 
@@ -273,7 +276,7 @@ To enable federation support we can the `schema.enable_federation()` method.
         .finish();
     ```
 
-We can extends the fields of an Object from another service/subgraph using Entities and @key. 
+We can extends the fields of an Object from another service/subgraph using Entities and @key.
 
 !!! info
 
@@ -341,10 +344,11 @@ We need to use `complex` macro on `Pet` struct for the `ComplexObject` macro to 
         }
     }
     ```
+
 ## Schema Generation
 
 We can generate schema using `schema.sdl_with_options()` method. To enable federation declaratives we should
-pass `SDLExportOptions::new().federation()` as an argument to the method. 
+pass `SDLExportOptions::new().federation()` as an argument to the method.
 
 !!! example "Generate Schema with federation declaratives"
 

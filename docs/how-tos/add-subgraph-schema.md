@@ -85,6 +85,7 @@ As part of our continuous integration process on GitHub, we can use the [`diamon
 
 To update the deployed supergraph schema, we should create a Pull Request to the [`graph-federation` repository](https://github.com/DiamondLightSource/graph-federation/) with the desired subgraph schema and relevant configuration changes.
 
+<!-- markdownlint-disable-next-line MD024 -->
 ### GitHub CI
 
 A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps) can be created in order to act as a bot account capable of pushing to branches and creating Pull Requests from the GitHub actions of another repository. The [`diamondlightsource/graph-federation/workflows/update`] action can be used to perform the necessary schema composition, branch update, and pull request generation.
