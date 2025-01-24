@@ -1,13 +1,13 @@
-# Compose Supergraph Schema
+# Update Supergraph Schema
 
-This workflow may be used to test that a new or updated Subgraph Schema is composable with the federated Supergraph described in the `supergraph-config.yaml` of this repository.
+This workflow may be used to create or update a Subgraph Schema by adding the schema to the `schema/` directory and an entry in the `supergraph-config.yaml` of this repository.
 
 ## Usage
 
 ### Inputs
 
 ```yaml
-- uses: diamondlightsource/graph-federation/workflows/compose@v1
+- uses: diamondlightsource/graph-federation/workflows/update@v1
   with:
     # A unique name given to the subgraph.
     # Required.
