@@ -4,6 +4,8 @@ This workflow may be used to create or update a Subgraph Schema by adding the sc
 
 ## Usage
 
+This workflow must be called after `diamondlightsource/graph-federation/actions/compose`
+
 ### Inputs
 
 ```yaml
@@ -12,26 +14,6 @@ This workflow may be used to create or update a Subgraph Schema by adding the sc
     # A unique name given to the subgraph.
     # Required.
     name:
-
-    # The public-facing URL of the subgraph.
-    # Required.
-    routing-url:
-
-    # The name of an artifact from this workflow run containing the subgraph schema.
-    # Required.
-    subgraph-schema-artifact:
-
-    # The name of the subgraph schema file within the artifact.
-    # Required.
-    subgraph-schema-filename:
-
-    # The name of the artifact to be created containing the supergraph schema.
-    # Optional. Default is 'supergraph'
-    supergraph-schema-artifact:
-
-    # The name of the supergraph schema file within the created artifact.
-    # Optional. Default is 'supergraph.graphql'
-    supergraph-schema-filename:
 
     # The ID of the GitHub App used to create the commit / pull request
     # Required.
@@ -74,13 +56,18 @@ steps:
       name: test-schema
       path: test-schema.graphql
 
-  - name: Update Supergraph
-    uses: diamondlightsource/graph-federation/actions/update@v1
+  - name: Compose Supergraph
+    uses: diamondlightsource/graph-federation/actions/compose@v1
     with:
       name: test
       routing-url: https://example.com/graphql
       subgraph-schema-artifact: test-schema
       subgraph-schema-filename: test-schema.graphql
+      
+  - name: Update Supergraph
+    uses: diamondlightsource/graph-federation/actions/update@v1
+    with:
+      name: test
       github-app-id: 1010045
       github-app-private-key: ${{ secrets.GRAPH_FEDERATOR }}
       publish: false

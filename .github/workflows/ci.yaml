@@ -42,15 +42,10 @@ jobs:
       contents: read
       packages: write
 
-  compose_workflow:
+  actions:
     # Deduplicate jobs from pull requests and branch pushes within the same repo.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
-    uses: ./.github/workflows/_compose_workflow.yaml
-
-  update_workflow:
-    # Deduplicate jobs from pull requests and branch pushes within the same repo.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
-    uses: ./.github/workflows/_update_workflow.yaml
+    uses: ./.github/workflows/_actions.yaml
     secrets:
       GRAPH_FEDERATOR: ${{ secrets.GRAPH_FEDERATOR }}
 

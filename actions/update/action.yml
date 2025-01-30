@@ -5,23 +5,6 @@ inputs:
   name:
     description: A unique name given to the subgraph
     required: true
-  routing-url:
-    description: The public-facing URL of the subgraph
-    required: true
-  subgraph-schema-artifact:
-    description: The name of an artifact from this workflow run containing the subgraph schema
-    required: true
-  subgraph-schema-filename:
-    description: The name of the subgraph schema file within the artifact
-    required: true
-  supergraph-schema-artifact:
-    description: The name of the artifact to be created containing the supergraph schema
-    required: true
-    default: supergraph
-  supergraph-schema-filename:
-    description: The name of the supergraph schema file within the created artifact
-    required: true
-    default: supergraph.graphql
   github-app-id:
     description: The ID of the GitHub App used to create the commit / pull request
     required: true
@@ -44,17 +27,6 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Compose Supergraph Schema
-      id: compose
-      uses: ./actions/compose
-      with:
-        name: ${{ inputs.name }}
-        routing-url: ${{ inputs.routing-url }}
-        subgraph-schema-artifact: ${{ inputs.subgraph-schema-artifact }}
-        subgraph-schema-filename: ${{ inputs.subgraph-schema-filename }}
-        supergraph-schema-artifact: ${{ inputs.supergraph-schema-artifact }}
-        supergraph-schema-filename: ${{ inputs.supergraph-schema-filename }}
-
     - name: Create GitHub App Token
       id: app-token
       uses: actions/create-github-app-token@v1.11.0
