@@ -33,6 +33,7 @@ runs:
       with:
         app-id: ${{ inputs.github-app-id }}
         private-key: ${{ inputs.github-app-private-key }}
+        owner: DiamondLightSource
         repositories: graph-federation
 
     - name: Create GitHub App Committer String
