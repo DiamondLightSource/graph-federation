@@ -1,13 +1,13 @@
-# Update Supergraph Schema
+# Compose Supergraph Schema
 
-This workflow may be used to create or update a Subgraph Schema by adding the schema to the `schema/` directory and an entry in the `supergraph-config.yaml` of this repository.
+This workflow may be used to test that a new or updated Subgraph Schema is composable with the federated Supergraph described in the `supergraph-config.yaml` of this repository.
 
 ## Usage
 
 ### Inputs
 
 ```yaml
-- uses: diamondlightsource/graph-federation/workflows/update@v1
+- uses: diamondlightsource/graph-federation/actions/compose@v1
   with:
     # A unique name given to the subgraph.
     # Required.
@@ -32,18 +32,6 @@ This workflow may be used to create or update a Subgraph Schema by adding the sc
     # The name of the supergraph schema file within the created artifact.
     # Optional. Default is 'supergraph.graphql'
     supergraph-schema-filename:
-
-    # The ID of the GitHub App used to create the commit / pull request
-    # Required.
-    github-app-id:
-   
-    # The private key of the GitHub App used to create the commit / pull request
-    # Required.
-    github-app-private-key:
-
-    # A boolean value which determines whether a pull request should be created
-    # Optional. Default is ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags') }}
-    publish:
 ```
 
 ### Outputs
@@ -74,14 +62,11 @@ steps:
       name: test-schema
       path: test-schema.graphql
 
-  - name: Update Supergraph
-    uses: diamondlightsource/graph-federation/workflows/update@v1
+  - name: Compose Supergraph
+    uses: diamondlightsource/graph-federation/actions/compose@v1
     with:
       name: test
       routing-url: https://example.com/graphql
       subgraph-schema-artifact: test-schema
       subgraph-schema-filename: test-schema.graphql
-      github-app-id: 1010045
-      github-app-private-key: ${{ secrets.GRAPH_FEDERATOR }}
-      publish: false
 ```

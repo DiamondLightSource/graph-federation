@@ -31,7 +31,7 @@ jobs:
           path: test-schema.graphql
 
       - name: Update Supergraph
-        uses: ./workflows/update
+        uses: ./actions/update
         with:
           name: test
           routing-url: https://example.com/graphql

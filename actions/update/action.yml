@@ -46,7 +46,7 @@ runs:
   steps:
     - name: Compose Supergraph Schema
       id: compose
-      uses: ./workflows/compose
+      uses: ./actions/compose
       with:
         name: ${{ inputs.name }}
         routing-url: ${{ inputs.routing-url }}

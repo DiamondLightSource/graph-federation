@@ -28,7 +28,7 @@ jobs:
           path: test-schema.graphql
 
       - name: Compose Supergraph
-        uses: ./workflows/compose
+        uses: ./actions/compose
         with:
           name: test
           routing-url: https://example.com/graphql
