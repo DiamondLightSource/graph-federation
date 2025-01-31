@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Node
-        uses: actions/setup-node@v4.1.0
+        uses: actions/setup-node@v4.2.0
 
       - name: Install release-please & simple-git
         run: npm install release-please simple-git
