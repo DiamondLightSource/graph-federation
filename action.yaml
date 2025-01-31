@@ -1,5 +1,5 @@
-name: Compose Supergraph
-description: Perform supergraph composition with appropraite subgraph schema and metadata
+name: Update Supergraph
+description: Perform Supergraph composition with appropraite subgraph schema and metadata and create PR
 
 inputs:
   name:
@@ -22,22 +22,42 @@ inputs:
     description: The name of the supergraph schema file within the created artifact
     required: true
     default: supergraph.graphql
+  github-app-id:
+    description: The ID of the GitHub App used to create the commit / pull request
+    required: false
+  github-app-private-key:
+    description: The private key of the GitHub App used to create the commit / pull request
+    required: false
+  publish:
+    description: A boolean value which determines whether a branch and pull request should be created
+    required: true
+    default: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags') }}
 
 outputs:
   supergraph-schema-artifact-id:
     description: The id of the artifact containing the supergraph schema
-    value: ${{ steps.supergraph-artifact.outputs.artifact-id }}
+    value: ${{ steps.compose.outputs.artifact-id }}
   supergraph-schema-artifact-url:
     description: The url of the artifact containing the supergraph schema
-    value: ${{ steps.supergraph-artifact.outputs.artifact-url }}
+    value: ${{ steps.compose.outputs.artifact-url }}
 
 runs:
   using: composite
   steps:
+    - name: Create GitHub App Token
+      id: app-token
+      uses: actions/create-github-app-token@v1.11.0
+      with:
+        app-id: ${{ inputs.github-app-id }}
+        private-key: ${{ inputs.github-app-private-key }}
+        owner: DiamondLightSource
+        repositories: graph-federation
+
     - name: Checkout Graph Federation source
       uses: actions/checkout@v4.2.2
       with:
         repository: DiamondLightSource/graph-federation
+        token: ${{ steps.app-token.outputs.token }}
 
     - name: Download Subgraph schema
       uses: actions/download-artifact@v4.1.8
@@ -83,3 +103,36 @@ runs:
       with:
         name: ${{ inputs.supergraph-schema-artifact }}
         path: ./${{ inputs.supergraph-schema-filename }}
+
+    - name: Configure Git
+      shell: bash
+      run: |
+        USER_ID="$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)"
+        git config --local user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
+        git config --local user.email "$USER_ID+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com"
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+    - name: Create commit
+      id: commit
+      shell: bash
+      run: |
+        git checkout -b ${{ inputs.name }}-${{ github.ref_name }}
+        git fetch
+        git add supergraph-config.yaml schema/${{ inputs.name }}.graphql
+        if ! git diff --staged --quiet --exit-code supergraph-config.yaml schema/${{ inputs.name }}.graphql; then
+          git commit -m "Update ${{ inputs.name }} schema to ${{ github.ref_name }}"
+          echo "changed=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create PR
+      if: inputs.publish == 'true' && steps.commit.outputs.changed == 'true'
+      shell: bash
+      run: |
+        git push origin ${{ inputs.name }}-${{ github.ref_name }} --force-with-lease
+        gh auth login --with-token <<< ${{ steps.app-token.outputs.token }}
+        gh pr create \
+          --title "chore: Update ${{ inputs.name }} subgraph to ${{ github.ref_name }}" \
+          --body "" \
+          --head ${{ inputs.name }}-${{ github.ref_name }} \
+          --base main

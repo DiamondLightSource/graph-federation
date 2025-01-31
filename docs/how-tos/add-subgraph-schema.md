@@ -64,7 +64,8 @@ rover supergraph compose --config supergraph-config.yaml --elv2-license accept
 
 ### GitHub CI
 
-As part of our continuous integration process on GitHub, we can use the [`diamondlightsource/graph-federation/workflows/compose`](https://github.com/DiamondLightSource/graph-federation/tree/main/workflows/compose) action in GitHub actions.
+As part of our continuous integration process on GitHub, we can use the [`diamondlightsource/graph-federation`](https://github.com/DiamondLightSource/graph-federation) action in GitHub actions;
+Setting `publish` to false will simply compose the new schema, without creating a pull request.
 
 !!! example "GitHub Actions Validity Checking"
 
@@ -73,12 +74,13 @@ As part of our continuous integration process on GitHub, we can use the [`diamon
       federate:
         runs-on: ubuntu-latest
         needs: generate_schema
-        uses: diamondlightsource/graph-federation/workflows/compose@v1
+        uses: diamondlightsource/graph-federation@v1
         with:
           name: example
           routing-url: https://example.com/graphql
           subgraph-schema-artifact: ${{ jobs.generate_schema.artifact }}
           subgraph-schema-artifact: ${{ jobs.generate_schema.filename }}
+          publish: false
     ```
 
 ## Pull Request Generation
@@ -88,7 +90,7 @@ To update the deployed supergraph schema, we should create a Pull Request to the
 <!-- markdownlint-disable-next-line MD024 -->
 ### GitHub CI
 
-A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps) can be created in order to act as a bot account capable of pushing to branches and creating Pull Requests from the GitHub actions of another repository. The [`diamondlightsource/graph-federation/workflows/update`] action can be used to perform the necessary schema composition, branch update, and pull request generation.
+A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/about-creating-github-apps) can be created in order to act as a bot account capable of pushing to branches and creating Pull Requests from the GitHub actions of another repository. The [`diamondlightsource/graph-federation`](https://github.com/DiamondLightSource/graph-federation) action can be used to perform the necessary schema composition, branch update, and pull request generation with `publish` set to true.
 
 !!! tip
 
@@ -101,7 +103,7 @@ A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creati
       update:
         runs-on: ubuntu-latest
         needs: generate_schema
-        uses: diamondlightsource/graph-federation/workflows/update@v1
+        uses: diamondlightsource/graph-federation@v1
         with:
           name: example
           routing-url: https://example.com/graphql
@@ -109,4 +111,5 @@ A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creati
           subgraph-schema-artifact: ${{ jobs.generate_schema.filename }}
           github-app-id: 1010045
           github-app-private-key: ${{ secrets.GRAPH_FEDERATOR }}
+          publish: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags') }}
     ```
