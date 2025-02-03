@@ -28,7 +28,7 @@ The action can be used to simply check that the schema will federate by setting 
 ##### Inputs
 
 ```yaml
-- uses: diamondlightsource/graph-federation@v1
+- uses: diamondlightsource/graph-federation@main
   with:
     # A unique name given to the subgraph.
     # Required.
@@ -96,7 +96,7 @@ steps:
       path: test-schema.graphql
  
   - name: Update Supergraph
-    uses: diamondlightsource/graph-federation@v1
+    uses: diamondlightsource/graph-federation@main
     with:
       name: test
       routing-url: https://example.com/graphql

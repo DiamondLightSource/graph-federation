@@ -74,7 +74,7 @@ Setting `publish` to false will simply compose the new schema, without creating 
       federate:
         runs-on: ubuntu-latest
         needs: generate_schema
-        uses: diamondlightsource/graph-federation@v1
+        uses: diamondlightsource/graph-federation@main
         with:
           name: example
           routing-url: https://example.com/graphql
@@ -103,7 +103,7 @@ A [GitHub App](https://docs.github.com/en/apps/creating-github-apps/about-creati
       update:
         runs-on: ubuntu-latest
         needs: generate_schema
-        uses: diamondlightsource/graph-federation@v1
+        uses: diamondlightsource/graph-federation@main
         with:
           name: example
           routing-url: https://example.com/graphql
