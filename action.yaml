@@ -46,6 +46,7 @@ runs:
   steps:
     - name: Create GitHub App Token
       id: app-token
+      if: inputs.github-app-id && inputs.github-app-private-key
       uses: actions/create-github-app-token@v1.11.0
       with:
         app-id: ${{ inputs.github-app-id }}
@@ -57,7 +58,7 @@ runs:
       uses: actions/checkout@v4.2.2
       with:
         repository: DiamondLightSource/graph-federation
-        token: ${{ steps.app-token.outputs.token }}
+        token: ${{ steps.app-token.outputs.token || github.token }}
 
     - name: Download Subgraph schema
       uses: actions/download-artifact@v4.1.8
@@ -104,8 +105,9 @@ runs:
         name: ${{ inputs.supergraph-schema-artifact }}
         path: ./${{ inputs.supergraph-schema-filename }}
 
-    - name: Configure Git
+    - name: Configure Git with App
       shell: bash
+      if: steps.app-token.outcome == 'success'
       run: |
         USER_ID="$(gh api "/users/${{ steps.app-token.outputs.app-slug }}[bot]" --jq .id)"
         git config --local user.name "${{ steps.app-token.outputs.app-slug }}[bot]"
@@ -115,6 +117,7 @@ runs:
 
     - name: Create commit
       id: commit
+      if: steps.app-token.outcome == 'success'
       shell: bash
       run: |
         git checkout -b ${{ inputs.name }}-${{ github.ref_name }}
@@ -126,7 +129,7 @@ runs:
         fi
 
     - name: Create PR
-      if: inputs.publish == 'true' && steps.commit.outputs.changed == 'true'
+      if: inputs.publish == 'true' && steps.commit.outputs.changed == 'true' && steps.app-token.outcome == 'success'
       shell: bash
       run: |
         git push origin ${{ inputs.name }}-${{ github.ref_name }} --force-with-lease
