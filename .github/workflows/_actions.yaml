@@ -30,7 +30,17 @@ jobs:
           name: test-update-schema
           path: test-schema.graphql
 
-      - name: Update Supergraph
+      - name: Check Supergraph without App
+        uses: ./
+        with:
+          name: test
+          routing-url: https://example.com/graphql
+          subgraph-schema-artifact: test-update-schema
+          subgraph-schema-filename: test-schema.graphql
+          supergraph-schema-artifact: compose-supergraph
+          publish: false
+
+      - name: Check Supergraph with App
         uses: ./
         with:
           name: test
