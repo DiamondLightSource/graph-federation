@@ -87,8 +87,10 @@ runs:
     - name: Install Rover CLI
       shell: bash
       run: |
-        curl -sSL https://rover.apollo.dev/nix/latest | sh
-        echo "$HOME/.rover/bin" >> $GITHUB_PATH
+        if ! command -v rover 2>&1 > /dev/null; then
+          curl -sSL https://rover.apollo.dev/nix/latest | sh
+          echo "$HOME/.rover/bin" >> $GITHUB_PATH
+        fi
 
     - name: Compose Supergraph Schema
       shell: bash
