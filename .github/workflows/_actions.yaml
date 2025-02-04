@@ -30,14 +30,24 @@ jobs:
           name: test-update-schema
           path: test-schema.graphql
 
-      - name: Update Supergraph
+      - name: Check Supergraph without App
         uses: ./
         with:
           name: test
           routing-url: https://example.com/graphql
           subgraph-schema-artifact: test-update-schema
           subgraph-schema-filename: test-schema.graphql
-          supergraph-schema-artifact: compose-supergraph
+          supergraph-schema-artifact: compose-supergraph-without-app
+          publish: false
+
+      - name: Check Supergraph with App
+        uses: ./
+        with:
+          name: test
+          routing-url: https://example.com/graphql
+          subgraph-schema-artifact: test-update-schema
+          subgraph-schema-filename: test-schema.graphql
+          supergraph-schema-artifact: compose-supergraph-with-app
           github-app-id: 1010045
           github-app-private-key: ${{ secrets.GRAPH_FEDERATOR }}
           publish: false
