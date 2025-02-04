@@ -121,7 +121,7 @@ runs:
         git fetch
         git add supergraph-config.yaml schema/${{ inputs.name }}.graphql
         if ! git diff --staged --quiet --exit-code supergraph-config.yaml schema/${{ inputs.name }}.graphql; then
-          git commit -m "Update ${{ inputs.name }} schema to ${{ github.ref_name }}"
+          git commit -m "chore: update ${{ inputs.name }} schema to ${{ github.ref_name }}"
           echo "changed=true" >> $GITHUB_OUTPUT
         fi
 
