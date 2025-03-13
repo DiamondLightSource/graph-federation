@@ -1,3 +1,18 @@
+type Artifact {
+	"""
+	The file name of the artifact
+	"""
+	name: String!
+	"""
+	The download URL for the artifact
+	"""
+	url: Url!
+	"""
+	The MIME type of the artifact data
+	"""
+	mimeType: String!
+}
+
 
 """
 Implement the DateTime<Utc> scalar
@@ -57,9 +72,6 @@ type Query {
 }
 
 
-"""
-A Task created by a workflow
-"""
 type Task {
 	"""
 	Unique name of the task
@@ -81,6 +93,10 @@ type Task {
 	Children of a task
 	"""
 	dependencies: [String!]!
+	"""
+	Artifacts produced by a task
+	"""
+	artifacts: [Artifact!]!
 }
 
 enum TaskStatus {
@@ -92,6 +108,11 @@ enum TaskStatus {
 	ERROR
 	OMITTED
 }
+
+"""
+URL is a String implementing the [URL Standard](http://url.spec.whatwg.org/)
+"""
+scalar Url
 
 """
 A visit to an instrument as part of a session
@@ -129,9 +150,6 @@ input VisitInput {
 	number: Int!
 }
 
-"""
-A Workflow consisting of one or more [`Task`]s
-"""
 type Workflow {
 	"""
 	The name given to the workflow, unique within a given visit
@@ -142,7 +160,7 @@ type Workflow {
 	"""
 	visit: Visit!
 	"""
-	The time at which the workflow began running
+	The current status of the workflow
 	"""
 	status: WorkflowStatus
 }
@@ -177,7 +195,7 @@ type WorkflowEdge @shareable {
 }
 
 """
-The controller has encountered an error whilst scheduling the workflow
+All tasks in the workflow have errored
 """
 type WorkflowErroredStatus {
 	"""
@@ -192,11 +210,14 @@ type WorkflowErroredStatus {
 	A human readable message indicating details about why the workflow is in this condition
 	"""
 	message: String
+	"""
+	Tasks created by the workflow
+	"""
 	tasks: [Task!]!
 }
 
 """
-A task in the workflow has completed with a non-zero exit code
+All tasks in the workflow have failed
 """
 type WorkflowFailedStatus {
 	"""
@@ -211,12 +232,12 @@ type WorkflowFailedStatus {
 	A human readable message indicating details about why the workflow is in this condition
 	"""
 	message: String
+	"""
+	Tasks created by the workflow
+	"""
 	tasks: [Task!]!
 }
 
-"""
-No tasks within the workflow have been scheduled
-"""
 type WorkflowPendingStatus {
 	"""
 	A human readable message indicating details about why the workflow is in this condition
@@ -224,9 +245,6 @@ type WorkflowPendingStatus {
 	message: String
 }
 
-"""
-At least one of the tasks has been scheduled, but they have not yet all complete
-"""
 type WorkflowRunningStatus {
 	"""
 	Time at which this workflow started
@@ -236,6 +254,9 @@ type WorkflowRunningStatus {
 	A human readable message indicating details about why the workflow is in this condition
 	"""
 	message: String
+	"""
+	Tasks created by the workflow
+	"""
 	tasks: [Task!]!
 }
 
@@ -245,7 +266,7 @@ The status of a workflow
 union WorkflowStatus = WorkflowPendingStatus | WorkflowRunningStatus | WorkflowSucceededStatus | WorkflowFailedStatus | WorkflowErroredStatus
 
 """
-All tasks in the workflow have succeeded
+All tasks in the workflow have succeded
 """
 type WorkflowSucceededStatus {
 	"""
@@ -260,12 +281,12 @@ type WorkflowSucceededStatus {
 	A human readable message indicating details about why the workflow is in this condition
 	"""
 	message: String
+	"""
+	Tasks created by the workflow
+	"""
 	tasks: [Task!]!
 }
 
-"""
-A Template which specifies how to produce a [`Workflow`]
-"""
 type WorkflowTemplate {
 	"""
 	The name given to the workflow template, globally unique
