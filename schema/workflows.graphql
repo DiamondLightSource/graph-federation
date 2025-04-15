@@ -30,6 +30,11 @@ A scalar that can represent any JSON value.
 scalar JSON
 
 """
+A scalar that can represent any JSON Object value.
+"""
+scalar JSONObject
+
+"""
 The root mutation of the service
 """
 type Mutation {
@@ -66,7 +71,7 @@ type Query {
 	Get a single [`Workflow`] by proposal, visit, and name
 	"""
 	workflow(visit: VisitInput!, name: String!): Workflow!
-	workflows(visit: VisitInput!, cursor: String, limit: Int): WorkflowConnection!
+	workflows(visit: VisitInput!, cursor: String, limit: Int, filter: WorkflowFilter): WorkflowConnection!
 	workflowTemplate(name: String!): WorkflowTemplate!
 	workflowTemplates(cursor: String, limit: Int): WorkflowTemplateConnection!
 }
@@ -163,6 +168,14 @@ type Workflow {
 	The current status of the workflow
 	"""
 	status: WorkflowStatus
+	"""
+	The top-level workflow parameters
+	"""
+	parameters: JSONObject
+	"""
+	The name of the template used to run the workflow
+	"""
+	templateRef: String
 }
 
 type WorkflowConnection @shareable {
@@ -238,6 +251,20 @@ type WorkflowFailedStatus {
 	tasks: [Task!]!
 }
 
+"""
+All the supported Workflows filters
+"""
+input WorkflowFilter {
+	"""
+	The status field for a workflow
+	"""
+	workflowStatusFilter: WorkflowStatusFilter
+	"""
+	The creator of the workflow
+	"""
+	creator: String
+}
+
 type WorkflowPendingStatus {
 	"""
 	A human readable message indicating details about why the workflow is in this condition
@@ -264,6 +291,17 @@ type WorkflowRunningStatus {
 The status of a workflow
 """
 union WorkflowStatus = WorkflowPendingStatus | WorkflowRunningStatus | WorkflowSucceededStatus | WorkflowFailedStatus | WorkflowErroredStatus
+
+"""
+Represents workflow status filters
+"""
+input WorkflowStatusFilter {
+	pending: Boolean! = false
+	running: Boolean! = false
+	succeeded: Boolean! = false
+	failed: Boolean! = false
+	error: Boolean! = false
+}
 
 """
 All tasks in the workflow have succeded
