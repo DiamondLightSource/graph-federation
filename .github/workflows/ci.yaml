@@ -16,6 +16,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
       id-token: write
     secrets:
       GRAPH_FEDERATOR: ${{ secrets.GRAPH_FEDERATOR }}
@@ -33,7 +34,7 @@ jobs:
   supergraph_publish:
     # Deduplicate jobs from pull requests and branch pushes within the same repo.
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
-    needs: 
+    needs:
       - release_please
       - helm_lint
       - supergraph_generate
