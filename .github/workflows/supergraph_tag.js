@@ -21,20 +21,27 @@ module.exports = async ({github, context, token}) => {
   console.log(`Supergraph Pull Request: ${JSON.stringify(pullRequest)}`);
 
   const git = simpleGit();
-  const lastTag = await git.raw('describe', '--tags', '--match', 'supergraph@v*', 'HEAD').catch((err) => undefined);
+
+  let lastTag = await git.raw('describe', '--tags', '--abbrev=0', '--match', 'supergraph@v*').catch((err) => undefined);
+  if (lastTag !== undefined) {
+    lastTag = lastTag.trim();
+  }
   console.log(`Last Tag: ${JSON.stringify(lastTag)}`);
-  const commitsSince = lastTag ? await git.raw('rev-list', `${lastTag}..HEAD`, '--count') : await git.raw('rev-list', '--count', '--all');
+
+  const commitsSince = parseInt((lastTag ? await git.raw('rev-list', `${lastTag}..HEAD`, '--count') : await git.raw('rev-list', '--count', '--all')).trim());
   console.log(`Commits Since: ${commitsSince}`);
 
-  let rcVersion = '';
-  if (pullRequest !== undefined) {
-
+  let version = '';
+  if (lastTag !== undefined && commitsSince === 0) {
+    version = lastTag.split("@v").pop();
+    console.log(`Release Version: ${version}`);
+  } else if (pullRequest !== undefined) {
     const releaseData = pullRequest.body.releaseData.find((release) => release.component === 'supergraph-schema');
-    rcVersion = commitsSince !== 0 ? `${releaseData.version.major}.${releaseData.version.minor}.${releaseData.version.patch}-rc${commitsSince}` : `${releaseData.version.major}.${releaseData.version.minor}.${releaseData.version.patch}`;
-    console.log(`Release Candidate Version: ${rcVersion}`);
-  } else if (lastTag !== undefined && commitsSince === 0)  {
-    rcVersion = lastTag.split("@v").pop();
+    version = `${releaseData.version.major}.${releaseData.version.minor}.${releaseData.version.patch}-rc${commitsSince}`;
+    console.log(`Release Candidate Version: ${version}`);
+  } else {
+    console.log(`No version to release.`);
   };
 
-  return rcVersion
+  return version
 }
