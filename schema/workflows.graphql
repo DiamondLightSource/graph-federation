@@ -12,7 +12,7 @@ type Artifact {
 	"""
 	mimeType: String!
 }
-
+ 
 
 """
 Implement the DateTime<Utc> scalar
