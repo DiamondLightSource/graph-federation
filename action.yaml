@@ -131,7 +131,7 @@ runs:
         git fetch
         git add supergraph-config.yaml schema/${{ inputs.name }}.graphql
         if ! git diff --staged --quiet --exit-code supergraph-config.yaml schema/${{ inputs.name }}.graphql; then
-          git commit -m "chore: update ${{ inputs.name }} schema to ${{ github.ref_name }}"
+          git commit -m "feat: update ${{ inputs.name }} schema to ${{ github.ref_name }}"
           echo "changed=true" >> $GITHUB_OUTPUT
         fi
 
@@ -142,7 +142,7 @@ runs:
         git push origin ${{ inputs.name }}-${{ github.ref_name }} --force-with-lease
         gh auth login --with-token <<< ${{ steps.app-token.outputs.token }}
         gh pr create \
-          --title "chore: Update ${{ inputs.name }} subgraph to ${{ github.ref_name }}" \
-          --body "- [Repository](${{ github.repositoryUrl }})" \
+          --title "feat: Update ${{ inputs.name }} subgraph to ${{ github.ref_name }}" \
+          --body "$(echo -e '- Source repository: [${{ github.repository }}](https://github.com/${{ github.repository }})\n- Author: @${{ github.actor }}')" \
           --head ${{ inputs.name }}-${{ github.ref_name }} \
           --base main
