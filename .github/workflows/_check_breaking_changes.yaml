@@ -1,0 +1,38 @@
+name: Check breaking changes
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    name: Check Schema
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up branch name
+        id: vars
+        run: |
+          BRANCH_NAME="${GITHUB_REF##*/}"
+          BRANCH_PREFIX="${BRANCH_NAME%-*}"
+          echo "BRANCH_PREFIX=$BRANCH_PREFIX" >> $GITHUB_ENV
+
+      - name: Check if schema file exists
+        id: schema-check
+        shell: bash
+        run: |
+          FILE="schema/${{ env.BRANCH_PREFIX }}.graphql"
+          git fetch origin main
+          git checkout origin/main -- "$FILE" 2>/dev/null || true
+          if [ ! -f "$FILE" ]; then
+            echo "Schema file not found: $FILE"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run GraphQL Inspector
+        if: steps.schema-check.outputs.skip != 'true'
+        uses: graphql-hive/graphql-inspector@master
+        with:
+          schema: "main:schema/${{ env.BRANCH_PREFIX }}.graphql"
