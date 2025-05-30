@@ -4,3 +4,7 @@ subgraphs:
     routing_url: https://workflows.diamond.ac.uk/graphql
     schema:
       file: schema/workflows.graphql
+  instrument_sessions:
+    routing_url: https://instrument-sessions.diamond.ac.uk/api/graphql
+    schema:
+      file: schema/instrument_sessions.graphql
