@@ -1,0 +1,234 @@
+input AddSampleEventInput {
+  description: String!
+}
+
+input CreateOrValidateSampleInput {
+  """URL of the JSON schema the samples' `data` should be validated against"""
+  dataSchemaUrl: String!
+
+  """Number of the proposal the samples should be associated with"""
+  proposalNumber: Int!
+
+  """Number of the instrument session the samples should be associated with"""
+  instrumentSessionNumber: Int!
+
+  """Samples to be created"""
+  samples: [SampleIn!]!
+
+  """
+  Whether or not the provided samples should only be validated and not created
+  """
+  validateOnly: Boolean! = false
+}
+
+input CreateSampleInput {
+  proposalNumber: Int!
+  instrumentSessionNumber: Int!
+  samples: [SampleInLegacy!]!
+  validateOnly: Boolean! = false
+}
+
+"""Return type when creating or validating samples"""
+type CreateSamplesResponse {
+  """Whether the operation has succeeded without validation errors"""
+  success: Boolean!
+
+  """Samples that have been created"""
+  samples: [Sample!]!
+
+  """Errors that occurred during sample validation"""
+  errors: [SampleValidationError!]!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+input DatetimeOperatorInput {
+  """
+  Will filter to items where the `DateTime` field is greater than (i.e. after) the provided value
+  """
+  gt: DateTime = null
+
+  """
+  Will filter to items where the `DateTime` field is less than (i.e. before) the provided value
+  """
+  lt: DateTime = null
+}
+
+"""The details of sample validation error"""
+type ErrorDetails {
+  """The type of error that occurred"""
+  type: String!
+
+  """
+  Tuple of strings identifying where in the sample schema the error occurred.
+  """
+  location: [String!]!
+
+  """A human readable error message."""
+  message: String!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf).
+"""
+scalar JSON @specifiedBy(url: "https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf")
+
+type Mutation {
+  createSamples(input: CreateSampleInput!): [Sample!]! @deprecated(reason: "Will be replaced by createOrValidateSamples")
+  createOrValidateSamples(input: CreateOrValidateSampleInput!): CreateSamplesResponse!
+  sample(sampleId: UUID!): SampleMutations
+}
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+}
+
+type Query {
+  """Get a sample by its id"""
+  sample(sampleId: UUID!): Sample
+
+  """Get a list of samples associated with a given instrument session"""
+  samples(proposalNumber: Int!, instrumentSessionNumber: Int!, first: Int!, filter: SampleFilterInput! = {}, before: String = null, after: String = null, last: Int = null, orderBy: SampleOrder! = {}): SampleConnection!
+}
+
+type Sample {
+  id: UUID!
+  name: String!
+  data: JSON!
+  createdTime: DateTime!
+  updatedTime: DateTime!
+  dataSchemaUrl: String!
+
+  """Samples from which this sample is derived"""
+  parents(first: Int = null, before: String = null, after: String = null, last: Int = null): SampleConnection!
+
+  """Samples derived from this sample"""
+  children(first: Int = null, before: String = null, after: String = null, last: Int = null): SampleConnection!
+
+  """Events linked to this sample"""
+  events(first: Int = null, before: String = null, after: String = null, last: Int = null): SampleEventConnection!
+
+  """The JSON schema that the sample's `data` conforms to"""
+  dataSchema: JSON!
+}
+
+type SampleConnection {
+  edges: [SampleEdge!]!
+  pageInfo: PageInfo!
+}
+
+type SampleEdge {
+  cursor: String!
+  node: Sample!
+}
+
+type SampleEvent {
+  id: UUID!
+  timestamp: DateTime!
+  description: String!
+}
+
+type SampleEventConnection {
+  edges: [SampleEventEdge!]!
+  pageInfo: PageInfo!
+}
+
+type SampleEventEdge {
+  cursor: String!
+  node: SampleEvent!
+}
+
+input SampleFilterInput {
+  """Filter on the `schemaUrl` field of `Sample`"""
+  schemaUrl: StringOperatorInput = null
+
+  """Filter on the `createdTime` field of `Sample`"""
+  createdTime: DatetimeOperatorInput = null
+
+  """Filter on the `createdTime` field of `Sample`"""
+  updatedTime: DatetimeOperatorInput = null
+
+  """Filter on the `name` field of `Sample`"""
+  name: StringOperatorInput = null
+}
+
+input SampleIn {
+  """Name of the sample"""
+  name: String!
+
+  """Data of the sample"""
+  data: JSON!
+}
+
+input SampleInLegacy {
+  name: String!
+  data: JSON!
+  dataSchemaUrl: String!
+  parentIds: [Int!] = null
+  children: [SampleInLegacy!] = null
+}
+
+type SampleMutations {
+  sampleId: UUID!
+  linkInstrumentSessionToSample(proposalNumber: Int!, instrumentSessionNumber: Int!): Void
+  addSampleEvent(sampleEvent: AddSampleEventInput!): SampleEvent!
+}
+
+input SampleOrder {
+  name: SortingOrder = null
+  createdTime: SortingOrder = null
+  updatedTime: SortingOrder = null
+}
+
+"""The details of errors occurred when validating a sample"""
+type SampleValidationError {
+  """
+  The index of the sample in CreateSampleInput.samples for which the error occurred
+  """
+  index: Int!
+
+  """Errors that occurred when validating the sample"""
+  errors: [ErrorDetails!]!
+}
+
+enum SortingOrder {
+  ASC
+  DESC
+}
+
+"""Conditions used to filter results based on the value of a String field"""
+input StringOperatorInput {
+  """
+  Will filter to items where the `String` field is equal to the provided value
+  """
+  eq: String = null
+
+  """
+  Will filter to items where the `String` field is not equal to the provided value
+  """
+  ne: String = null
+
+  """
+  Will filter to items where the `String` field is a member of the provided value
+  """
+  in: [String!] = null
+
+  """
+  Will filter to items where the `String` field is not a member of the provided value
+  """
+  nin: [String!] = null
+
+  """
+  Will filter to items where the `String` field is contains the provided value
+  """
+  contains: String = null
+}
+
+scalar UUID
+
+"""Represents NULL values"""
+scalar Void

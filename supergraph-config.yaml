@@ -8,3 +8,7 @@ subgraphs:
     routing_url: https://instrument-sessions.diamond.ac.uk/api/graphql
     schema:
       file: schema/instrument_sessions.graphql
+  samples:
+    routing_url: https://sample-information.diamond.ac.uk/api/graphql
+    schema:
+      file: schema/samples.graphql
