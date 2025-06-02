@@ -40,7 +40,7 @@ jobs:
       - supergraph_generate
     uses: ./.github/workflows/_supergraph_publish.yaml
     permissions:
-      contents: read
+      contents: write
       packages: write
 
   actions:
