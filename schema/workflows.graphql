@@ -12,7 +12,7 @@ type Artifact {
 	"""
 	mimeType: String!
 }
- 
+
 
 """
 Implement the DateTime<Utc> scalar
@@ -73,7 +73,7 @@ type Query {
 	workflow(visit: VisitInput!, name: String!): Workflow!
 	workflows(visit: VisitInput!, cursor: String, limit: Int, filter: WorkflowFilter): WorkflowConnection!
 	workflowTemplate(name: String!): WorkflowTemplate!
-	workflowTemplates(cursor: String, limit: Int): WorkflowTemplateConnection!
+	workflowTemplates(cursor: String, limit: Int, filter: WorkflowTemplatesFilter): WorkflowTemplateConnection!
 }
 
 
@@ -102,6 +102,10 @@ type Task {
 	Artifacts produced by a task
 	"""
 	artifacts: [Artifact!]!
+	"""
+	Node type - Pod, DAG, etc
+	"""
+	stepType: String!
 }
 
 enum TaskStatus {
@@ -379,6 +383,16 @@ type WorkflowTemplateEdge @shareable {
 	A cursor for use in pagination
 	"""
 	cursor: String!
+}
+
+"""
+Supported label filters for ClusterWorkflowTemplates
+"""
+input WorkflowTemplatesFilter {
+	"""
+	The science group owning the template eg imaging
+	"""
+	scienceGroup: String
 }
 
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
