@@ -64,9 +64,3 @@ jobs:
       - name: Publish Chart
         if: steps.version.outputs.result != '' && github.event_name == 'push' && ( startsWith(github.ref, 'refs/tags') || startsWith(github.ref, 'refs/heads/main') )
         run: helm push $(ls supergraph-*.tgz) ${{ env.IMAGE_REPOSITORY }}
-
-      - name: Release Supergraph Schema
-        if: steps.version.outputs.result != '' && github.event_name == 'push' && ( startsWith(github.ref, 'refs/tags/supergraph-schema@') )
-        uses: softprops/action-gh-release@v1
-        with:
-          files: charts/supergraph/supergraph.graphql
