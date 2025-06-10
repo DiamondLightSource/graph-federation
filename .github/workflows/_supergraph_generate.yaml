@@ -28,3 +28,8 @@ jobs:
           name: supergraph.graphql
           path: supergraph.graphql
 
+      - name: Release Supergraph Schema
+        if: github.event_name == 'push' && ( startsWith(github.ref, 'refs/tags/supergraph-schema@') )
+        uses: softprops/action-gh-release@v1
+        with:
+          files: supergraph.graphql
