@@ -13,16 +13,12 @@ type Artifact {
 	mimeType: String!
 }
 
-
 """
 Implement the DateTime<Utc> scalar
 
 The input/output is a string in RFC3339 format.
 """
 scalar DateTime
-
-
-
 
 """
 A scalar that can represent any JSON value.
@@ -76,6 +72,15 @@ type Query {
 	workflowTemplates(cursor: String, limit: Int, filter: WorkflowTemplatesFilter): WorkflowTemplateConnection!
 }
 
+"""
+The root mutation of the service
+"""
+type Subscription {
+	"""
+	Processing to subscribe to data for all workflows in a session
+	"""
+	workflow(visit: VisitInput!, name: String!): Workflow!
+}
 
 type Task {
 	"""
@@ -106,6 +111,14 @@ type Task {
 	Node type - Pod, DAG, etc
 	"""
 	stepType: String!
+	"""
+	Start time for a task on a workflow
+	"""
+	startTime: DateTime
+	"""
+	End time for a task on a workflow
+	"""
+	endTime: DateTime
 }
 
 enum TaskStatus {
@@ -347,6 +360,10 @@ type WorkflowTemplate {
 	"""
 	description: String
 	"""
+	The repository storing the code associated with this template.
+	"""
+	repository: String
+	"""
 	A JSON Schema describing the arguments of a Workflow Template
 	"""
 	arguments: JSON!
@@ -395,10 +412,19 @@ input WorkflowTemplatesFilter {
 	scienceGroup: String
 }
 
+"""
+Directs the executor to include this field or fragment only when the `if` argument is true.
+"""
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+"""
+Directs the executor to skip this field or fragment when the `if` argument is true.
+"""
 directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+"""
+Provides a scalar specification URL for specifying the behavior of custom scalar types.
+"""
 directive @specifiedBy(url: String!) on SCALAR
 extend schema @link(
-	url: "https://specs.apollo.dev/federation/v2.3",
-	import: ["@key", "@tag", "@shareable", "@inaccessible", "@override", "@external", "@provides", "@requires", "@composeDirective", "@interfaceObject"]
+	url: "https://specs.apollo.dev/federation/v2.5",
+	import: ["@key", "@tag", "@shareable", "@inaccessible", "@override", "@external", "@provides", "@requires", "@composeDirective", "@interfaceObject", "@requiresScopes"]
 )
