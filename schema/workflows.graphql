@@ -280,6 +280,10 @@ input WorkflowFilter {
 	The creator of the workflow
 	"""
 	creator: String
+	"""
+	The workflow template
+	"""
+	template: String
 }
 
 type WorkflowPendingStatus {
