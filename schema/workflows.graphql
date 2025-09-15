@@ -13,6 +13,8 @@ type Artifact {
 	mimeType: String!
 }
 
+scalar Creator
+
 """
 Implement the DateTime<Utc> scalar
 
@@ -73,6 +75,48 @@ type Query {
 }
 
 """
+Supported DLS science groups
+"""
+enum ScienceGroup {
+	"""
+	Macromolecular Crystallography
+	"""
+	MX
+	"""
+	Workflows Examples
+	"""
+	EXAMPLES
+	"""
+	Magnetic Materials
+	"""
+	MAGNETIC_MATERIALS
+	"""
+	Soft Condensed Matter
+	"""
+	CONDENSED_MATTER
+	"""
+	Imaging and Microscopy
+	"""
+	IMAGING
+	"""
+	Biological Cryo-Imaging
+	"""
+	BIO_CRYO_IMAGING
+	"""
+	Structures and Surfaces
+	"""
+	SURFACES
+	"""
+	Crystallography
+	"""
+	CRYSTALLOGRAPHY
+	"""
+	Spectroscopy
+	"""
+	SPECTROSCOPY
+}
+
+"""
 The root mutation of the service
 """
 type Subscription {
@@ -119,6 +163,10 @@ type Task {
 	End time for a task on a workflow
 	"""
 	endTime: DateTime
+	"""
+	A human readable message indicating details about why this step is in this condition
+	"""
+	message: String
 }
 
 enum TaskStatus {
@@ -130,6 +178,8 @@ enum TaskStatus {
 	ERROR
 	OMITTED
 }
+
+scalar Template
 
 """
 URL is a String implementing the [URL Standard](http://url.spec.whatwg.org/)
@@ -277,9 +327,13 @@ input WorkflowFilter {
 	"""
 	workflowStatusFilter: WorkflowStatusFilter
 	"""
-	The creator of the workflow
+	The fedid of the user who created the workflow
 	"""
-	creator: String
+	creator: Creator
+	"""
+	The name of the workflow template
+	"""
+	template: Template
 }
 
 type WorkflowPendingStatus {
@@ -409,7 +463,7 @@ input WorkflowTemplatesFilter {
 	"""
 	The science group owning the template eg imaging
 	"""
-	scienceGroup: String
+	scienceGroup: [ScienceGroup!]
 }
 
 """
