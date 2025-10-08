@@ -13,6 +13,8 @@ type Artifact {
 	mimeType: String!
 }
 
+scalar Creator
+
 """
 Implement the DateTime<Utc> scalar
 
@@ -29,6 +31,20 @@ scalar JSON
 A scalar that can represent any JSON Object value.
 """
 scalar JSONObject
+
+"""
+A single log line streamed from a pod
+"""
+type LogEntry {
+	"""
+	The log line content
+	"""
+	content: String!
+	"""
+	The name of the pod producing the log
+	"""
+	podName: String!
+}
 
 """
 The root mutation of the service
@@ -73,9 +89,55 @@ type Query {
 }
 
 """
+Supported DLS science groups
+"""
+enum ScienceGroup {
+	"""
+	Macromolecular Crystallography
+	"""
+	MX
+	"""
+	Workflows Examples
+	"""
+	EXAMPLES
+	"""
+	Magnetic Materials
+	"""
+	MAGNETIC_MATERIALS
+	"""
+	Soft Condensed Matter
+	"""
+	CONDENSED_MATTER
+	"""
+	Imaging and Microscopy
+	"""
+	IMAGING
+	"""
+	Biological Cryo-Imaging
+	"""
+	BIO_CRYO_IMAGING
+	"""
+	Structures and Surfaces
+	"""
+	SURFACES
+	"""
+	Crystallography
+	"""
+	CRYSTALLOGRAPHY
+	"""
+	Spectroscopy
+	"""
+	SPECTROSCOPY
+}
+
+"""
 The root mutation of the service
 """
 type Subscription {
+	"""
+	Processing to subscribe to logs for a single pod of a workflow
+	"""
+	logs(visit: VisitInput!, workflowName: String!, taskId: String!): LogEntry!
 	"""
 	Processing to subscribe to data for all workflows in a session
 	"""
@@ -119,6 +181,10 @@ type Task {
 	End time for a task on a workflow
 	"""
 	endTime: DateTime
+	"""
+	A human readable message indicating details about why this step is in this condition
+	"""
+	message: String
 }
 
 enum TaskStatus {
@@ -130,6 +196,8 @@ enum TaskStatus {
 	ERROR
 	OMITTED
 }
+
+scalar Template
 
 """
 URL is a String implementing the [URL Standard](http://url.spec.whatwg.org/)
@@ -193,6 +261,10 @@ type Workflow {
 	The name of the template used to run the workflow
 	"""
 	templateRef: String
+	"""
+	The workflow creator
+	"""
+	creator: WorkflowCreator!
 }
 
 type WorkflowConnection @shareable {
@@ -208,6 +280,17 @@ type WorkflowConnection @shareable {
 	A list of nodes.
 	"""
 	nodes: [Workflow!]!
+}
+
+"""
+Information about the creator of a workflow.
+"""
+type WorkflowCreator {
+	"""
+	An identifier unique to the creator of the workflow.
+	Typically this is the creator's Fed-ID.
+	"""
+	creatorId: String!
 }
 
 """
@@ -277,9 +360,13 @@ input WorkflowFilter {
 	"""
 	workflowStatusFilter: WorkflowStatusFilter
 	"""
-	The creator of the workflow
+	The fedid of the user who created the workflow
 	"""
-	creator: String
+	creator: Creator
+	"""
+	The name of the workflow template
+	"""
+	template: Template
 }
 
 type WorkflowPendingStatus {
@@ -409,7 +496,7 @@ input WorkflowTemplatesFilter {
 	"""
 	The science group owning the template eg imaging
 	"""
-	scienceGroup: String
+	scienceGroup: [ScienceGroup!]
 }
 
 """
