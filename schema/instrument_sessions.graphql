@@ -1,3 +1,7 @@
+schema @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@key", "@shareable"]) {
+  query: Query
+}
+
 type Account {
   accountId: Int!
   username: String!
@@ -33,7 +37,7 @@ type Instrument {
   instrumentSessions: [InstrumentSession!]!
 }
 
-type InstrumentSession {
+type InstrumentSession @key(fields: "instrumentSessionNumber proposal {proposalNumber}") {
   instrumentSessionId: Int!
   instrumentSessionNumber: Int!
   startTime: DateTime
@@ -53,7 +57,14 @@ type InstrumentSessionRole {
   onSite: Boolean!
 }
 
-type Proposal {
+type PageInfo @shareable {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type Proposal @key(fields: "proposalNumber") {
   proposalNumber: Int!
   proposalCategory: String
   title: String
@@ -70,6 +81,16 @@ type ProposalAccount {
   role: String!
 }
 
+type ProposalConnection @shareable {
+  edges: [ProposalEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProposalEdge @shareable {
+  cursor: String!
+  node: Proposal!
+}
+
 enum ProposalState {
   Open
   Closed
@@ -77,11 +98,14 @@ enum ProposalState {
 }
 
 type Query {
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+
   """Get a proposal by its number"""
   proposal(proposalNumber: Int!): Proposal
 
   """Get a list of proposals"""
-  proposals(proposalCategory: String = null): [Proposal!]!
+  proposals(proposalCategory: String = null, first: Int = null, last: Int = null, after: String = null, before: String = null): ProposalConnection!
 
   """Get a instrument session"""
   instrumentSession(proposalNumber: Int!, instrumentSessionNumber: Int!): InstrumentSession
@@ -97,4 +121,12 @@ type Query {
 
   """Get an account"""
   account(username: String!): Account
+}
+
+scalar _Any
+
+union _Entity = InstrumentSession | Proposal
+
+type _Service {
+  sdl: String!
 }
