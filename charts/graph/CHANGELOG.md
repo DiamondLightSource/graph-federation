@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.2](https://github.com/DiamondLightSource/graph-federation/compare/graph@v0.12.1...graph@v0.12.2) (2025-11-13)
+
+
+### Features
+
+* add websocket subscription support to router ([50d1503](https://github.com/DiamondLightSource/graph-federation/commit/50d15035209d5531cc2e0417d1522b3f66bced94))
+
 ## [0.12.1](https://github.com/DiamondLightSource/graph-federation/compare/graph@v0.12.0...graph@v0.12.1) (2025-06-10)
 
 
