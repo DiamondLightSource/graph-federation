@@ -57,7 +57,7 @@ The action can be used to simply check that the schema will federate by setting 
     # The ID of the GitHub App used to create the commit / pull request
     # Required when publish is true.
     github-app-id:
-   
+
     # The private key of the GitHub App used to create the commit / pull request
     # Required when publish is true.
     github-app-private-key:
@@ -69,9 +69,9 @@ The action can be used to simply check that the schema will federate by setting 
 
 ##### Outputs
 
-| Name                           | Description                                              | Example                                                                   |
-| ------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------- |
-| supergraph-schema-artifact-id  | The id of the artifact containing the supergraph schema  | 1234                                                                      |
+| Name                           | Description                                              | Example                                                                     |
+| ------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------------- |
+| supergraph-schema-artifact-id  | The id of the artifact containing the supergraph schema  | 1234                                                                        |
 | supergraph-schema-artifact-url | The url of the artifact containing the supergraph schema | <https://github.com/example-org/example-repo/actions/runs/1/artifacts/1234> |
 
 ##### Example
@@ -94,7 +94,7 @@ steps:
     with:
       name: test-schema
       path: test-schema.graphql
- 
+
   - name: Update Supergraph
     uses: diamondlightsource/graph-federation@main
     with:
