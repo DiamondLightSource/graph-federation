@@ -9,17 +9,6 @@ router:
       - --supergraph
       - /etc/apollo/supergraph.graphql
     configuration:
-      subscription:
-        enabled: true
-        mode:
-          passthrough:
-            all:
-              path: /subscriptions
-            subgraphs:
-              workflows:
-                path: /ws
-                protocol: graphql_ws
-                heartbeat_interval: 10s
       sandbox:
         enabled: true
       homepage:
