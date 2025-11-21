@@ -54,6 +54,11 @@ type Mutation {
 }
 
 """
+Represents Relay Node types
+"""
+union NodeValue = Workflow
+
+"""
 Information about pagination in a connection
 """
 type PageInfo @shareable {
@@ -79,6 +84,7 @@ type PageInfo @shareable {
 The root query of the service
 """
 type Query {
+	node(id: ID!): NodeValue
 	"""
 	Get a single [`Workflow`] by proposal, visit, and name
 	"""
@@ -241,6 +247,10 @@ input VisitInput {
 }
 
 type Workflow {
+	"""
+	The unique ID derived from the visit and name
+	"""
+	id: ID!
 	"""
 	The name given to the workflow, unique within a given visit
 	"""
