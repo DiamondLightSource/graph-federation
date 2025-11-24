@@ -2,47 +2,39 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: graph-stable
-  namespace: {{ .Release.Namespace }}
+  namespace: {{.Release.Namespace}}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: {{ default .Release.Namespace .Values.project }}
+  project: {{default .Release.Namespace .Values.project}}
   sources:
-    - repoURL: {{ .Values.graph.repoURL }}
-      targetRevision: {{ .Values.graph.stableRevision }}
-      path: {{ .Values.graph.path }}
+    - repoURL: {{.Values.graph.repoURL}}
+      targetRevision: {{.Values.graph.stableRevision}}
+      path: {{.Values.graph.path}}
       helm:
         valuesObject:
-          router:
-            router:
-              configuration:
-                telemetry:
-                  exporters:
-                    metrics:
-                      common:
-                        resource:
-                          "service.name": "router-stable"
-                      otlp:
-                        enabled: true
-                        endpoint: 'graph-monitoring-opentelemetry-collector:4317'
-                        protocol: grpc
-                    tracing:
-                      common:
-                        resource:
-                          "service.name": "router-stable"
-                      otlp:
-                        enabled: true
-                        endpoint: 'graph-monitoring-opentelemetry-collector:4317'
-                        protocol: grpc
-                      propagation:
-                        trace_context: true
-    - repoURL: {{ .Values.schema.repoURL }}
-      chart: {{ .Values.schema.chart }}
-      targetRevision: {{ .Values.schema.stableRevision | quote }}
+          cosmo-gateway:
+            enabled: true
+            image:
+              repository: ghcr.io/wundergraph/cosmo/router
+              tag: "0.266.0"
+            podAnnotations:
+              prometheus.io/scrape: "true"
+              prometheus.io/port: "4000"
+            args:
+              - --supergraph=/etc/cosmo/supergraph.graphql
+              - --listen=0.0.0.0:4000
+              - --forward-headers=Authorization
+              - --cors-allowed-origins=^https:\/\/([a-zA-Z0-9\-]+\.)*diamond\.ac\.uk\/?,^https?:\/\/localhost(:\d+)?\/?
+              - --otel-endpoint=http://graph-monitoring-opentelemetry-collector:4317
+              - --otel-service-name=router-stable
+    - repoURL: {{.Values.schema.repoURL}}
+      chart: {{.Values.schema.chart}}
+      targetRevision: {{.Values.schema.stableRevision | quote}}
   destination:
-    name: {{ .Values.destination.name }}
-    server: {{ .Values.destination.server }}
-    namespace: {{ default .Release.Namespace .Values.destination.namespace }}
+    name: {{.Values.destination.name}}
+    server: {{.Values.destination.server}}
+    namespace: {{default .Release.Namespace .Values.destination.namespace}}
   syncPolicy:
     automated:
       prune: true

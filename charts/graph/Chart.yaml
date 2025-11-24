@@ -2,12 +2,12 @@ apiVersion: v2
 name: graph
 description: The Diamond data Graph
 type: application
-version: 0.12.2
+version: 0.13.0
 dependencies:
-  - name: router
-    repository: oci://ghcr.io/apollographql/helm-charts
-    version: 1.49.1
-    condition: apollo-router.enabled
+  - name: cosmo-router
+    repository: oci://ghcr.io/wundergraph/cosmo/helm-charts/router
+    version: 0.15.0
+    condition: cosmo-router.enabled
   - name: oauth2-proxy
     repository: https://oauth2-proxy.github.io/manifests/
     version: 7.7.20

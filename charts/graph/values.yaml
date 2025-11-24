@@ -1,40 +1,18 @@
-router:
+cosmo-router:
   enabled: true
+  image:
+    repository: ghcr.io/wundergraph/cosmo/router
+    tag: "0.266.0"
   podAnnotations:
     prometheus.io/scrape: "true"
-    prometheus.io/port: "44180"
-  router:
-    args:
-      - --hot-reload
-      - --supergraph
-      - /etc/apollo/supergraph.graphql
-    configuration:
-      sandbox:
-        enabled: true
-      homepage:
-        enabled: false
-      supergraph:
-        introspection: true
-        listen: 0.0.0.0:4000
-        query_planning:
-          experimental_parallelism: auto
-      include_subgraph_errors:
-        all: true
-      headers:
-        all:
-          request:
-            - propagate:
-                matching: authorization
-      cors:
-        match_origins:
-          - ^https:\/\/([a-zA-Z0-9\-]+\.)*diamond\.ac\.uk\/?
-          - ^https?:\/\/localhost(:\d+)?\/?
-      health_check:
-        listen: 0.0.0.0:8088
-      telemetry:
-        instrumentation:
-          spans:
-            mode: spec_compliant
+    prometheus.io/port: "4000"
+  args:
+    - --supergraph=/etc/cosmo/supergraph.graphql
+    - --listen=0.0.0.0:4000
+    - --forward-headers=Authorization
+    - --cors-allowed-origins=^https:\/\/([a-zA-Z0-9\-]+\.)*diamond\.ac\.uk\/?,^https?:\/\/localhost(:\d+)?\/?
+    - --otel-endpoint=http://graph-monitoring-opentelemetry-collector:4317
+    - --otel-service-name=cosmo-gateway
   extraVolumes:
     - name: supergraph
       configMap:
@@ -44,8 +22,8 @@ router:
             path: supergraph.graphql
   extraVolumeMounts:
     - name: supergraph
-      mountPath: /etc/apollo/
-      readonly: true
+      mountPath: /etc/cosmo
+      readOnly: true
   resources:
     requests:
       cpu: 8
@@ -102,9 +80,9 @@ oauth2-proxy:
     configFile: |
       upstreamConfig:
         upstreams:
-          - id: router
+          - id: gateway
             path: /
-            uri: http://{{ .Release.Name }}-router:80
+            uri: http://{{ .Release.Name }}-cosmo-gateway:80
   extraVolumes:
     - name: client-secret
       secret:

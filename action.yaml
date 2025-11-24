@@ -1,5 +1,5 @@
 name: Update Supergraph
-description: Perform Supergraph composition with appropraite subgraph schema and metadata and create PR
+description: Perform Supergraph composition with appropriate subgraph schema and metadata and create PR
 
 inputs:
   name:
@@ -89,21 +89,22 @@ runs:
         '
         supergraph-config.yaml
 
-    - name: Install Rover CLI
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "24"
+
+    - name: Install Cosmo CLI
       shell: bash
-      run: |
-        if ! command -v rover 2>&1 > /dev/null; then
-          curl -sSL https://rover.apollo.dev/nix/latest | sh
-          echo "$HOME/.rover/bin" >> $GITHUB_PATH
-        fi
+      run: npm install -g wgc@latest
 
     - name: Compose Supergraph Schema
+      id: compose
       shell: bash
-      run: >
-        rover supergraph compose
-        --config supergraph-config.yaml
-        --elv2-license=accept
-        > ${{ inputs.supergraph-schema-filename }}
+      run: |
+        wgc router compose \
+          --input supergraph-config.yaml \
+          --out ${{ inputs.supergraph-schema-filename }}
 
     - name: Upload Supergraph Artifact
       id: supergraph-artifact
