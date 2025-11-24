@@ -4,41 +4,50 @@ on:
   pull_request:
 
 jobs:
-  compare_schema:
+  compare_execution_config:
     runs-on: ubuntu-latest
-    steps:
-      - name: Install Rover CLI
-        run: |
-          curl -sSL https://rover.apollo.dev/nix/latest | sh
-          echo "$HOME/.rover/bin" >> $GITHUB_PATH
+    defaults:
+      run:
+        shell: bash
 
-      - name: Checkout main branch
-        uses: actions/checkout@v4.2.2
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
         with:
           ref: main
 
-      - name: Compose old Supergraph Schema
-        run: >
-          rover supergraph compose
-          --config supergraph-config.yaml
-          --elv2-license=accept
-          > /tmp/old_supergraph.graphql
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install Cosmo CLI (wgc)
+        run: npm install -g wgc@latest
+
+      - name: Compose old Execution Config (main)
+        run: |
+          wgc router compose \
+            --input supergraph-config.yaml \
+            --out /tmp/old_router-execution-config.json
 
       - name: Checkout Source
         uses: actions/checkout@v4.2.2
 
-      - name: Compose New Supergraph Schema
-        run: >
-          rover supergraph compose
-          --config supergraph-config.yaml
-          --elv2-license=accept
-          > supergraph.graphql
-
-      - name: Generate Schema Diff
+      - name: Compose New Execution Config (PR)
         run: |
-          git --no-pager diff --no-index --minimal /tmp/old_supergraph.graphql supergraph.graphql > diff.md || true
+          wgc router compose \
+            --input supergraph-config.yaml \
+            --out router-execution-config.json
+
+      - name: Normalize JSON
+        run: |
+          jq -S . /tmp/old_router-execution-config.json > /tmp/old_sorted.json
+          jq -S . router-execution-config.json > /tmp/new_sorted.json
+
+      - name: Generate Diff
+        run: |
+          git --no-pager diff --no-index --minimal /tmp/old_sorted.json /tmp/new_sorted.json > diff.md || true
           if [ -s diff.md ]; then echo "has_diff=true" >> $GITHUB_ENV; fi
-          sed -i 1,4d diff.md
           sed -i '1s/^/```diff\n/; $a```' diff.md
 
       - name: Comment PR with artefact comparison report

@@ -2,48 +2,100 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: graph-stable
-  namespace: {{ .Release.Namespace }}
+  namespace: {{.Release.Namespace}}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: {{ default .Release.Namespace .Values.project }}
+  project: {{default .Release.Namespace .Values.project}}
+
   sources:
-    - repoURL: {{ .Values.graph.repoURL }}
-      targetRevision: {{ .Values.graph.stableRevision }}
-      path: {{ .Values.graph.path }}
+    - repoURL: {{.Values.graph.repoURL}}
+      targetRevision: {{.Values.graph.stableRevision}}
+      path: {{.Values.graph.path}}
       helm:
         valuesObject:
           router:
             router:
+              image:
+                repository: ghcr.io/wundergraph/cosmo/router
+                tag: "latest"
+                version: "latest"
               configuration:
-                telemetry:
+                logLevel: "info"
+                prometheus:
+                  enabled: true
+                  port: 8088
+                  path: /metrics
+              podAnnotations:
+                prometheus.io/scrape: "true"
+                prometheus.io/port: "8088"
+                prometheus.io/path: "/metrics"
+
+            commonConfiguration: |-
+              version: "1"
+              log_level: "info"
+
+              listen_addr: "0.0.0.0:4000"
+              health_check_path: "/health"
+              readiness_check_path: "/health/ready"
+              liveness_check_path: "/health/live"
+
+              playground_enabled: true
+              playground_path: "/"
+              introspection:
+                enabled: true
+
+              cors:
+                allow_origins:
+                  - "*"
+
+              headers:
+                all:
+                  request:
+                    - op: "propagate"
+                      named: Authorization
+                    - op: "propagate"
+                      named: Cookie
+
+              subgraph_error_propagation:
+                mode: wrapped
+                allowed_extension_fields:
+                  - "code"
+                propagate_status_codes: true
+                attach_service_name: true
+                omit_locations: true
+                omit_extensions: false
+                default_extension_code: DOWNSTREAM_SERVICE_ERROR
+
+              telemetry:
+                service_name: "router-stable"
+                tracing:
+                  enabled: true
                   exporters:
-                    metrics:
-                      common:
-                        resource:
-                          "service.name": "router-stable"
-                      otlp:
-                        enabled: true
-                        endpoint: 'graph-monitoring-opentelemetry-collector:4317'
-                        protocol: grpc
-                    tracing:
-                      common:
-                        resource:
-                          "service.name": "router-stable"
-                      otlp:
-                        enabled: true
-                        endpoint: 'graph-monitoring-opentelemetry-collector:4317'
-                        protocol: grpc
-                      propagation:
-                        trace_context: true
-    - repoURL: {{ .Values.schema.repoURL }}
-      chart: {{ .Values.schema.chart }}
-      targetRevision: {{ .Values.schema.stableRevision | quote }}
+                    - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
+                      exporter: "grpc"
+                metrics:
+                  otlp:
+                    enabled: true
+                    exporters:
+                      - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
+                        exporter: "grpc"
+
+          oauth2-proxy:
+            ingress:
+              enabled: true
+            alphaConfig:
+              enabled: true
+
+    - repoURL: {{.Values.schema.repoURL}}
+      chart: {{.Values.schema.chart}}
+      targetRevision: {{.Values.schema.stableRevision | quote}}
+
   destination:
-    name: {{ .Values.destination.name }}
-    server: {{ .Values.destination.server }}
-    namespace: {{ default .Release.Namespace .Values.destination.namespace }}
+    name: {{.Values.destination.name}}
+    server: {{.Values.destination.server}}
+    namespace: {{default .Release.Namespace .Values.destination.namespace}}
+
   syncPolicy:
     automated:
       prune: true
-      selfHeal: true

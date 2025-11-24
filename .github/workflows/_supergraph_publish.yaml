@@ -1,4 +1,4 @@
-name: Publish Supergraph Schema
+name: Publish Router Execution Config
 
 on:
   workflow_call:
@@ -35,16 +35,16 @@ jobs:
         if: steps.version.outputs.result != ''
         uses: azure/setup-helm@v4.2.0
 
-      - name: Download Schema Artifact
+      - name: Download Router Execution Config Artifact
         if: steps.version.outputs.result != ''
         uses: actions/download-artifact@v4.1.8
         with:
-          name: supergraph.graphql
-          path: charts/supergraph
+          name: router-execution-config
+          path: charts/graph
 
       - name: Package Chart
         if: steps.version.outputs.result != ''
-        run: helm package charts/supergraph --version ${{ steps.version.outputs.result }}
+        run: helm package charts/graph --version ${{ steps.version.outputs.result }}
 
       - name: Generate Image Name
         if: steps.version.outputs.result != ''
@@ -63,4 +63,4 @@ jobs:
 
       - name: Publish Chart
         if: steps.version.outputs.result != '' && github.event_name == 'push' && ( startsWith(github.ref, 'refs/tags') || startsWith(github.ref, 'refs/heads/main') )
-        run: helm push $(ls supergraph-*.tgz) ${{ env.IMAGE_REPOSITORY }}
+        run: helm push $(ls graph-*.tgz) ${{ env.IMAGE_REPOSITORY }}
