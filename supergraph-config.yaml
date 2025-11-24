@@ -1,14 +1,17 @@
-federation_version: =2.8.0
+version: 1
 subgraphs:
-  workflows:
+  - name: workflows
     routing_url: https://workflows.diamond.ac.uk/graphql
+    subscription:
+      url: wss://workflows.diamond.ac.uk/graphql/ws
+      protocol: ws
     schema:
       file: schema/workflows.graphql
-  instrument_sessions:
+  - name: instrument_sessions
     routing_url: https://instrument-sessions.diamond.ac.uk/api/graphql
     schema:
       file: schema/instrument_sessions.graphql
-  samples:
+  - name: samples
     routing_url: https://sample-information.diamond.ac.uk/api/graphql
     schema:
       file: schema/samples.graphql
