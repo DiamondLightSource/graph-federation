@@ -1,5 +1,9 @@
 # Terminology
 
+## Router Execution Config
+
+The Router Execution Config defines how the Router executes incoming operations and contains the Supergraph Schema.
+
 ## Schema
 
 A GraphQL schema is an artifact describing the API provided by a given GraphQL endpoint.

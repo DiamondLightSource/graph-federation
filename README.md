@@ -8,19 +8,18 @@ Docs can be found [on github pages](https://diamondlightsource.github.io/graph-f
 
 ## Structure
 
-- `supergraph-schema.yaml` & `schema/`: A description of how subgraph schemas and how they are composed to produce the supergraph schema.
+- `supergraph-config.yaml` & `schema/`: A description of subgraph schemas and how they are composed a runtime execution configuration for the Cosmo Router.
 - `apps.yaml` & `charts/apps/`: An [ArgoCD](https://argoproj.github.io/cd/) [App-of-Apps](https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/#app-of-apps-pattern) used to deploy the other charts in various configurations
-- `charts/graph`: A Helm chart used to deploy the [Apollo Router](https://www.apollographql.com/docs/router/)
+- `charts/graph`: A Helm chart used to deploy the [Cosmo Router](https://wundergraph.com/router-gateway/), including the generated router-execution-config.json, mounted via a ConfigMap.
 - `charts/monitoring`: A Helm chart used to deploy [Prometheus](https://prometheus.io/) and [Jaeger](https://www.jaegertracing.io/) for observability
-- `charts/supergraph`: A Helm chart used to deploy the supergraph schema
 - `action.yaml`: A [GitHub action](https://github.com/features/actions) used to create subgraph schema update pull requests
 - `mkdocs.yaml` & `docs/`: User facing documentation, built with [mkdocs](https://www.mkdocs.org/)
 
 ## Action
 
-### Update Supergraph Schema
+### Update Supergraph
 
-This workflow may be used to create or update a Subgraph Schema by adding the schema to the `schema/` directory and an entry in the `supergraph-config.yaml` of this repository.
+This workflow may be used to create or update a Subgraph Schema by adding the schema to the `schema/` directory and an entry in the `supergraph-config.yaml` of this repository. The workflow composes the federated graph using Cosmo's composition pipeline, generates a new router-execution-config.json.
 The action can be used to simply check that the schema will federate by setting `publish` to `false`.
 
 #### Usage
@@ -38,6 +37,10 @@ The action can be used to simply check that the schema will federate by setting 
     # Required.
     routing-url:
 
+    # Optional subscription URL (WS/SSE) for Cosmo
+    subscription-url:
+    subscription-protocol: ws
+
     # The name of an artifact from this workflow run containing the subgraph schema.
     # Required.
     subgraph-schema-artifact:
@@ -46,13 +49,13 @@ The action can be used to simply check that the schema will federate by setting 
     # Required.
     subgraph-schema-filename:
 
-    # The name of the artifact to be created containing the supergraph schema.
-    # Optional. Default is 'supergraph'
-    supergraph-schema-artifact:
+    # The name of the artifact to be created containing the generated router execution config.
+    # Optional. Default is 'router-execution-config'
+    execution-config-artifact:
 
-    # The name of the supergraph schema file within the created artifact.
-    # Optional. Default is 'supergraph.graphql'
-    supergraph-schema-filename:
+    # The name of the generated execution config within the created artifact.
+    # Optional. Default is 'router-execution-config.json'
+    execution-config-filename:
 
     # The ID of the GitHub App used to create the commit / pull request
     # Required when publish is true.
@@ -69,10 +72,10 @@ The action can be used to simply check that the schema will federate by setting 
 
 ##### Outputs
 
-| Name                           | Description                                              | Example                                                                     |
-| ------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------------- |
-| supergraph-schema-artifact-id  | The id of the artifact containing the supergraph schema  | 1234                                                                        |
-| supergraph-schema-artifact-url | The url of the artifact containing the supergraph schema | <https://github.com/example-org/example-repo/actions/runs/1/artifacts/1234> |
+| Name                           | Description                                                    | Example                                                                     |
+| ------------------------------ | -------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| execution-config-artifact-id   | The id of the artifact containing the router execution config  | 1234                                                                        |
+| execution-config-artifact-url  | The url of the artifact containing the router execution config | <https://github.com/example-org/example-repo/actions/runs/1/artifacts/1234> |
 
 ##### Example
 
@@ -95,7 +98,7 @@ steps:
       name: test-schema
       path: test-schema.graphql
 
-  - name: Update Supergraph
+  - name: Update Composition
     uses: diamondlightsource/graph-federation@main
     with:
       name: test
