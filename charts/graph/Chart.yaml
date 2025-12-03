@@ -4,8 +4,8 @@ description: The Diamond data Graph
 type: application
 version: 0.13.0
 dependencies:
-  - name: cosmo-router
-    repository: oci://ghcr.io/wundergraph/cosmo/helm-charts/router
+  - name: router
+    repository: oci://ghcr.io/wundergraph/cosmo/helm-charts
     version: 0.15.0
     condition: cosmo-router.enabled
   - name: oauth2-proxy

@@ -1,4 +1,4 @@
-cosmo-router:
+router:
   enabled: true
   image:
     repository: ghcr.io/wundergraph/cosmo/router
