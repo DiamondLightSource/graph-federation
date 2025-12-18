@@ -4,15 +4,15 @@ on:
   pull_request:
 
 jobs:
-  compare_schema:
+  compare_execution_config:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
 
     steps:
-      - name: Checkout main branch
-        uses: actions/checkout@v4.2.2
+      - name: Checkout main
+        uses: actions/checkout@v4
         with:
           ref: main
 
@@ -24,26 +24,30 @@ jobs:
       - name: Install Cosmo CLI (wgc)
         run: npm install -g wgc@latest
 
-      - name: Compose old Supergraph Schema
+      - name: Compose old Execution Config (main)
         run: |
           wgc router compose \
             --input supergraph-config.yaml \
-            --out /tmp/old_supergraph.graphql
+            --out /tmp/old_router-execution-config.json
 
       - name: Checkout Source
         uses: actions/checkout@v4.2.2
 
-      - name: Compose New Supergraph Schema
+      - name: Compose New Execution Config (PR)
         run: |
           wgc router compose \
             --input supergraph-config.yaml \
-            --out supergraph.graphql
+            --out router-execution-config.json
 
-      - name: Generate Schema Diff
+      - name: Normalize JSON
         run: |
-          git --no-pager diff --no-index --minimal /tmp/old_supergraph.graphql supergraph.graphql > diff.md || true
+          jq -S . /tmp/old_router-execution-config.json > /tmp/old_sorted.json
+          jq -S . router-execution-config.json > /tmp/new_sorted.json
+
+      - name: Generate Diff
+        run: |
+          git --no-pager diff --no-index --minimal /tmp/old_sorted.json /tmp/new_sorted.json > diff.md || true
           if [ -s diff.md ]; then echo "has_diff=true" >> $GITHUB_ENV; fi
-          sed -i 1,4d diff.md
           sed -i '1s/^/```diff\n/; $a```' diff.md
 
       - name: Comment PR with artefact comparison report
