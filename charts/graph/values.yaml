@@ -12,7 +12,7 @@ router:
     prometheus.io/path: "/metrics"
 
   configuration:
-    logLevel: "info"
+    logLevel: "debug"
 
     routerConfigPath: /etc/cosmo/execution-config.json
 
@@ -25,7 +25,8 @@ router:
 
   commonConfiguration: |-
     version: "1"
-    log_level: "info"
+    log_level: "debug"
+    json_log: true
 
     listen_addr: "0.0.0.0:4000"
 
@@ -34,8 +35,9 @@ router:
     liveness_check_path: "/health/live"
 
     query_plans_enabled: true
-    playground_enabled: true
-    playground_path: "/"
+    playground:
+      enabled: true
+      path: "/"
     introspection:
       enabled: true
 
@@ -73,13 +75,13 @@ router:
         otlp:
           enabled: true
           exporters:
-            - endpoint: "http://graph-monitoring-opentelemetry-collector:4317
-            - exporter: "grpc"
+            - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
+              exporter: "grpc"
 
   extraVolumes:
     - name: router-execution-config
       configMap:
-        name: "{{ .Release.Name }}-router-execution-config"
+        name: "graph-router-execution-config"
         items:
           - key: execution-config.json
             path: execution-config.json
@@ -101,10 +103,10 @@ oauth2-proxy:
   enabled: true
   ingress:
     enabled: true
-    hostname: graph.diamond.ac.uk
+    hostname: vaq49247.diamond.ac.uk
     pathType: Prefix
     hosts:
-      - graph.diamond.ac.uk
+      - vaq49247.diamond.ac.uk
     path: /
   config:
     configFile: |-
@@ -132,7 +134,7 @@ oauth2-proxy:
       providers:
         - provider: oidc
           scope: "openid profile email fedid"
-          clientId: graph
+          clientId: vaq49247-graph
           clientSecretFile: /etc/alpha/client-secret
           id: authn
           oidcConfig:

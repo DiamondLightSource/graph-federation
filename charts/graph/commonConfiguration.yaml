@@ -1,0 +1,54 @@
+    # yaml-language-server: $schema=https://raw.githubusercontent.com/wundergraph/cosmo/main/router/pkg/config/config.schema.json
+    version: "1"
+    log_level: "debug"
+    json_log: true
+
+    listen_addr: "0.0.0.0:4000"
+
+    health_check_path: "/health"
+    readiness_check_path: "/health/ready"
+    liveness_check_path: "/health/live"
+
+    query_plans_enabled: true
+    playground:
+      enabled: true
+      path: "/"
+    introspection:
+      enabled: true
+
+    cors:
+      allow_origins:
+        - '^https://([a-zA-Z0-9\-]+\.)*diamond\.ac\.uk$'
+        - '^https?://localhost(:\d+)?$'
+
+    headers:
+      all:
+        request:
+          - op: "propagate"
+            named: Authorization
+          - op: "propagate"
+            named: Cookie
+
+    subgraph_error_propagation:
+      mode: wrapped
+      allowed_extension_fields:
+        - "code"
+      propagate_status_codes: true
+      attach_service_name: true
+      omit_locations: true
+      omit_extensions: false
+      default_extension_code: DOWNSTREAM_SERVICE_ERROR
+
+    telemetry:
+      service_name: "cosmo-router"
+      tracing:
+        enabled: true
+        exporters:
+          - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
+            exporter: "grpc"
+      metrics:
+        otlp:
+          enabled: true
+          exporters:
+            - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
+              exporter: "grpc"
