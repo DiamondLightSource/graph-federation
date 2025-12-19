@@ -38,8 +38,6 @@ router:
     playground:
       enabled: true
       path: "/"
-    introspection:
-      enabled: true
 
     cors:
       allow_origins:
