@@ -153,9 +153,9 @@ oauth2-proxy:
   extraVolumes:
     - name: client-secret
       secret:
-        secretName: "{{ .Release.Name }}-oauth2-client"
+        secretName: "vaq49247-graph-client"
         items:
-          - key: secret
+          - key: client-secret
             path: client-secret
   extraVolumeMounts:
     - name: client-secret
