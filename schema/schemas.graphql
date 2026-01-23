@@ -1,0 +1,35 @@
+"""A JSON schema"""
+type JSONSchema {
+  """The identifier of the schema"""
+  id: String!
+
+  """A URL from which the schema can be accessed"""
+  url: String!
+
+  """The type of object the shema describes (if known)"""
+  type: String
+
+  """The title of the schema"""
+  title: String
+
+  """The version of the schema"""
+  version: String
+
+  """The instrument the schema was created for"""
+  instrument: String
+
+  """The description og the schema"""
+  description: String
+}
+
+type Query {
+  _service: _Service!
+  jsonSchema(url: String!): JSONSchema
+  jsonSchemas(type: String = null, instrument: String = null): [JSONSchema!]!
+}
+
+scalar _Any
+
+type _Service {
+  sdl: String!
+}
