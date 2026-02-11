@@ -54,6 +54,11 @@ type Mutation {
 }
 
 """
+Represents Relay Node types
+"""
+union NodeValue = Workflow
+
+"""
 Information about pagination in a connection
 """
 type PageInfo @shareable {
@@ -79,6 +84,7 @@ type PageInfo @shareable {
 The root query of the service
 """
 type Query {
+	node(id: ID!): NodeValue
 	"""
 	Get a single [`Workflow`] by proposal, visit, and name
 	"""
@@ -200,6 +206,24 @@ enum TaskStatus {
 scalar Template
 
 """
+Information about where the template is stored
+"""
+type TemplateSource {
+	"""
+	The URL of the GitHub repository
+	"""
+	repositoryUrl: String!
+	"""
+	The path to the template within the repository
+	"""
+	path: String!
+	"""
+	The current tracked branch of the repository
+	"""
+	targetRevision: String!
+}
+
+"""
 URL is a String implementing the [URL Standard](http://url.spec.whatwg.org/)
 """
 scalar Url
@@ -241,6 +265,10 @@ input VisitInput {
 }
 
 type Workflow {
+	"""
+	The unique ID derived from the visit and name
+	"""
+	id: ID!
 	"""
 	The name given to the workflow, unique within a given visit
 	"""
@@ -458,6 +486,10 @@ type WorkflowTemplate {
 	A JSON Forms UI Schema describing how to render the arguments of the Workflow Template
 	"""
 	uiSchema: JSON
+	"""
+	Information about where the template is obtained from
+	"""
+	templateSource: TemplateSource
 }
 
 type WorkflowTemplateConnection @shareable {
