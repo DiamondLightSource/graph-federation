@@ -5,4 +5,4 @@ metadata:
   name: {{.Release.Name}}-router-execution-config
 data:
   execution-config.json: |
-{{- .Files.Get "router-execution-config.json" | nindent 4 }}
+    {{- .Files.Get "router-execution-config.json" | nindent 4 }}
