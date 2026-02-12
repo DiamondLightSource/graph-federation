@@ -80,8 +80,14 @@ spec:
               hostname: graph-nightly.diamond.ac.uk
               hosts:
                 - graph-nightly.diamond.ac.uk
+              annotations:
+                nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+                nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+                nginx.ingress.kubernetes.io/websocket-services: "graph-nightly-oauth2-proxy"
             alphaConfig:
               enabled: true
+              configData:
+                proxyWebSockets: true
               configData:
                 providers:
                   - provider: oidc
