@@ -75,6 +75,8 @@ spec:
                         exporter: "grpc"
 
           "oauth2-proxy":
+            extraArgs:
+              proxy-websockets: "true"
             ingress:
               enabled: true
               hostname: graph-nightly.diamond.ac.uk
@@ -87,7 +89,6 @@ spec:
             alphaConfig:
               enabled: true
               configData:
-                proxyWebSockets: true
                 providers:
                   - provider: oidc
                     scope: "openid profile email fedid"
