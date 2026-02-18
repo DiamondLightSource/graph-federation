@@ -2,39 +2,53 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: graph-stable
-  namespace: {{.Release.Namespace}}
+  namespace: {{ .Release.Namespace }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: {{default .Release.Namespace .Values.project}}
-
+  project: {{ default .Release.Namespace .Values.project }}
   sources:
-    - repoURL: {{.Values.graph.repoURL}}
-      targetRevision: {{.Values.graph.stableRevision}}
-      path: {{.Values.graph.path}}
+    - repoURL: {{ .Values.graph.repoURL }}
+      targetRevision: {{ .Values.graph.stableRevision }}
+      path: {{ .Values.graph.path }}
       helm:
         valuesObject:
           router:
             router:
-              image:
-                repository: ghcr.io/wundergraph/cosmo/router
-                tag: "latest"
-                version: "latest"
               configuration:
                 logLevel: "info"
                 prometheus:
                   enabled: true
                   port: 8088
                   path: /metrics
-              podAnnotations:
-                prometheus.io/scrape: "true"
-                prometheus.io/port: "8088"
-                prometheus.io/path: "/metrics"
 
+            extraVolumes:
+              - name: router-execution-config
+                configMap:
+                  name: "graph-stable-router-execution-config"
+                  items:
+                    - key: execution-config.json
+                      path: execution-config.json
+
+            extraVolumeMounts:
+              - name: router-execution-config
+                mountPath: /etc/cosmo
+                readOnly: true
+
+            extraVolumes:
+              - name: client-secret
+                secret:
+                  secretName: "graph-stable-oauth2-client"
+                  items:
+                    - key: secret
+                      path: client-secret
+            extraVolumeMounts:
+              - name: client-secret
+                mountPath: /etc/alpha
+                readOnly: true
             commonConfiguration: |-
               version: "1"
-              log_level: "info"
-
+              log_level: "debug"
               listen_addr: "0.0.0.0:3002"
               health_check_path: "/health"
               readiness_check_path: "/health/ready"
@@ -81,20 +95,58 @@ spec:
                       - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
                         exporter: "grpc"
 
-          oauth2-proxy:
+          "oauth2-proxy":
             ingress:
               enabled: true
+              hostname: graph.diamond.ac.uk
+              hosts:
+                - graph.diamond.ac.uk
+              annotations:
+                nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+                nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+                nginx.ingress.kubernetes.io/websocket-services: "graph-stable-oauth2-proxy"
+
             alphaConfig:
               enabled: true
+              configData:
+                injectRequestHeaders:
+                  - name: Authorization
+                    values:
+                      - claim: access_token
+                        prefix: "Bearer "
+                    preserveRequestValue: true
+                injectResponseHeaders:
+                  - name: Identity
+                    values:
+                      - claim: id_token
+                providers:
+                  - provider: oidc
+                    scope: "openid profile email fedid"
+                    clientId: graph
+                    clientSecretFile: /etc/alpha/client-secret
+                    id: authn
+                    oidcConfig:
+                      issuerURL: https://authn.diamond.ac.uk/realms/master
+                      insecureAllowUnverifiedEmail: true
+                      audienceClaims:
+                        - aud
+                      emailClaim: email
+                      userIDClaim: email
+              configFile: |
+                upstreamConfig:
+                  upstreams:
+                    - id: router
+                      path: /
+                      uri: http://graph-stable-router:3002
 
-    - repoURL: {{.Values.schema.repoURL}}
-      chart: {{.Values.schema.chart}}
-      targetRevision: {{.Values.schema.stableRevision | quote}}
+    - repoURL: {{ .Values.schema.repoURL }}
+      chart: {{ .Values.schema.chart }}
+      targetRevision: {{ .Values.schema.stableRevision | quote }}
 
   destination:
-    name: {{.Values.destination.name}}
-    server: {{.Values.destination.server}}
-    namespace: {{default .Release.Namespace .Values.destination.namespace}}
+    name: {{ .Values.destination.name }}
+    server: {{ .Values.destination.server }}
+    namespace: {{ default .Release.Namespace .Values.destination.namespace }}
 
   syncPolicy:
     automated:

@@ -2,32 +2,53 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: graph-nightly
-  namespace: {{.Release.Namespace}}
+  namespace: {{ .Release.Namespace }}
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: {{default .Release.Namespace .Values.project}}
+  project: {{ default .Release.Namespace .Values.project }}
   sources:
-    - repoURL: {{.Values.graph.repoURL}}
-      targetRevision: {{.Values.graph.nightlyRevision}}
-      path: {{.Values.graph.path}}
+    - repoURL: {{ .Values.graph.repoURL }}
+      targetRevision: {{ .Values.graph.nightlyRevision }}
+      path: {{ .Values.graph.path }}
       helm:
         valuesObject:
           router:
             router:
               configuration:
                 logLevel: "info"
-                # routerConfigPath: /etc/cosmo/execution-config.json
-
                 prometheus:
                   enabled: true
                   port: 8088
                   path: /metrics
 
+            extraVolumes:
+              - name: router-execution-config
+                configMap:
+                  name: "graph-nightly-router-execution-config"
+                  items:
+                    - key: execution-config.json
+                      path: execution-config.json
+
+            extraVolumeMounts:
+              - name: router-execution-config
+                mountPath: /etc/cosmo
+                readOnly: true
+
+            extraVolumes:
+              - name: client-secret
+                secret:
+                  secretName: "graph-nightly-oauth2-client"
+                  items:
+                    - key: secret
+                      path: client-secret
+            extraVolumeMounts:
+              - name: client-secret
+                mountPath: /etc/alpha
+                readOnly: true
             commonConfiguration: |-
               version: "1"
               log_level: "debug"
-
               listen_addr: "0.0.0.0:3002"
               health_check_path: "/health"
               readiness_check_path: "/health/ready"
@@ -84,9 +105,20 @@ spec:
                 nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
                 nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
                 nginx.ingress.kubernetes.io/websocket-services: "graph-nightly-oauth2-proxy"
+
             alphaConfig:
               enabled: true
               configData:
+                injectRequestHeaders:
+                  - name: Authorization
+                    values:
+                      - claim: access_token
+                        prefix: "Bearer "
+                    preserveRequestValue: true
+                injectResponseHeaders:
+                  - name: Identity
+                    values:
+                      - claim: id_token
                 providers:
                   - provider: oidc
                     scope: "openid profile email fedid"
@@ -100,15 +132,21 @@ spec:
                         - aud
                       emailClaim: email
                       userIDClaim: email
+              configFile: |
+                upstreamConfig:
+                  upstreams:
+                    - id: router
+                      path: /
+                      uri: http://graph-nightly-router:3002
 
-    - repoURL: {{.Values.schema.repoURL}}
-      chart: {{.Values.schema.chart}}
-      targetRevision: {{.Values.schema.nightlyRevision | quote}}
+    - repoURL: {{ .Values.schema.repoURL }}
+      chart: {{ .Values.schema.chart }}
+      targetRevision: {{ .Values.schema.nightlyRevision | quote }}
 
   destination:
-    name: {{.Values.destination.name}}
-    server: {{.Values.destination.server}}
-    namespace: {{default .Release.Namespace .Values.destination.namespace}}
+    name: {{ .Values.destination.name }}
+    server: {{ .Values.destination.server }}
+    namespace: {{ default .Release.Namespace .Values.destination.namespace }}
 
   syncPolicy:
     automated:
