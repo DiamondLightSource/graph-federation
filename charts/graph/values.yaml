@@ -79,9 +79,6 @@ router:
             - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
               exporter: "grpc"
 
-  extraVolumes: null
-  extraVolumeMounts: null
-
   resources:
     requests:
       cpu: 8

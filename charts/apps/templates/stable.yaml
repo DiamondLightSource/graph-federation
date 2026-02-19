@@ -15,6 +15,7 @@ spec:
       helm:
         valuesObject:
           router:
+            existingConfigmap: "graph-stable-router-execution-config"
             commonConfiguration: |-
               version: "1"
               log_level: "info"
@@ -64,18 +65,6 @@ spec:
                     exporters:
                       - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
                         exporter: "grpc"
-            extraVolumes:
-              - name: router-execution-config
-                configMap:
-                  name: "graph-stable-router-execution-config"
-                  items:
-                    - key: execution-config.json
-                      path: execution-config.json
-            extraVolumeMounts:
-              - name: router-execution-config
-                mountPath: /etc/cosmo
-                readOnly: true
-
           oauth2-proxy:
             ingress:
               enabled: true
