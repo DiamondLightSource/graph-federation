@@ -14,16 +14,6 @@ spec:
       helm:
         valuesObject:
           router:
-            router:
-              configuration:
-                logLevel: "info"
-                # routerConfigPath: /etc/cosmo/execution-config.json
-
-                prometheus:
-                  enabled: true
-                  port: 8088
-                  path: /metrics
-
             commonConfiguration: |-
               version: "1"
               log_level: "debug"
