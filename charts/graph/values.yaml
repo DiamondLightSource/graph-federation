@@ -80,11 +80,7 @@ router:
               exporter: "grpc"
 
   extraVolumes: null
-
-  extraVolumeMounts:
-    - name: router-execution-config
-      mountPath: /etc/cosmo
-      readOnly: true
+  extraVolumeMounts: null
 
   resources:
     requests:

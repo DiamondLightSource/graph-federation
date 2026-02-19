@@ -22,6 +22,10 @@ spec:
                   items:
                     - key: execution-config.json
                       path: execution-config.json
+            extraVolumeMounts:
+              - name: router-execution-config
+                mountPath: /etc/cosmo
+                readOnly: true
             commonConfiguration: |-
               version: "1"
               log_level: "info"
