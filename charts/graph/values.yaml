@@ -82,7 +82,7 @@ router:
   extraVolumes:
     - name: router-execution-config
       configMap:
-        name: "graph-nightly-router-execution-config"
+        name: ""
         items:
           - key: execution-config.json
             path: execution-config.json

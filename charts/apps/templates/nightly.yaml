@@ -14,6 +14,13 @@ spec:
       helm:
         valuesObject:
           router:
+            extraVolumes:
+              - name: router-execution-config
+                configMap:
+                  name: "graph-nightly-router-execution-config"
+                  items:
+                    - key: execution-config.json
+                      path: execution-config.json
             commonConfiguration: |-
               version: "1"
               log_level: "debug"
