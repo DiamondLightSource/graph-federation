@@ -98,7 +98,18 @@ spec:
               enabled: true
               configData:
                 providers:
-                  - clientId: graph-stable
+                  - provider: oidc
+                    scope: "openid profile email fedid"
+                    clientId: graph-stable
+                    clientSecretFile: /etc/alpha/client-secret
+                    id: authn
+                    oidcConfig:
+                      issuerURL: https://authn.diamond.ac.uk/realms/master
+                      insecureAllowUnverifiedEmail: true
+                      audienceClaims:
+                        - aud
+                      emailClaim: email
+                      userIDClaim: email
               configFile: |
                 upstreamConfig:
                   upstreams:
