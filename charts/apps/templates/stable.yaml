@@ -76,13 +76,39 @@ spec:
                 mountPath: /etc/cosmo
                 readOnly: true
 
-          oauth2-proxy:
-            configFile: |
-              upstreamConfig:
-                upstreams:
-                  - id: router
-                    path: /
-                    uri: http://graph-stable-router:3002
+          "oauth2-proxy":
+            ingress:
+              enabled: true
+              hostname: graph-stable.diamond.ac.uk
+              hosts:
+                - graph-stable.diamond.ac.uk
+              annotations:
+                nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+                nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+                nginx.ingress.kubernetes.io/websocket-services: "graph-stable-oauth2-proxy"
+
+            alphaConfig:
+              enabled: true
+              configData:
+                providers:
+                  - provider: oidc
+                    scope: "openid profile email fedid"
+                    clientId: graph-stable
+                    clientSecretFile: /etc/alpha/client-secret
+                    id: authn
+                    oidcConfig:
+                      issuerURL: https://authn.diamond.ac.uk/realms/master
+                      insecureAllowUnverifiedEmail: true
+                      audienceClaims:
+                        - aud
+                      emailClaim: email
+                      userIDClaim: email
+              configFile: |
+                upstreamConfig:
+                  upstreams:
+                    - id: router
+                      path: /
+                      uri: http://graph-stable-router:3002
 
             extraVolumes:
               - name: client-secret
@@ -96,10 +122,6 @@ spec:
               - name: client-secret
                 mountPath: /etc/alpha
                 readOnly: true
-            ingress:
-              enabled: true
-            alphaConfig:
-              enabled: true
 
     - repoURL: {{.Values.schema.repoURL}}
       chart: {{.Values.schema.chart}}

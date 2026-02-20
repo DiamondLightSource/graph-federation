@@ -85,25 +85,6 @@ spec:
                 nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
                 nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
                 nginx.ingress.kubernetes.io/websocket-services: "graph-nightly-oauth2-proxy"
-            configFile: |
-              upstreamConfig:
-                upstreams:
-                  - id: router
-                    path: /
-                    uri: http://graph-nightly-router:3002
-
-            extraVolumes:
-              - name: client-secret
-                secret:
-                  secretName: "graph-nightly-oauth2-client"
-                  items:
-                    - key: secret
-                      path: client-secret
-
-            extraVolumeMounts:
-              - name: client-secret
-                mountPath: /etc/alpha
-                readOnly: true
 
             alphaConfig:
               enabled: true
@@ -121,6 +102,25 @@ spec:
                         - aud
                       emailClaim: email
                       userIDClaim: email
+              configFile: |
+                upstreamConfig:
+                  upstreams:
+                    - id: router
+                      path: /
+                      uri: http://graph-nightly-router:3002
+
+            extraVolumes:
+              - name: client-secret
+                secret:
+                  secretName: "graph-nightly-oauth2-client"
+                  items:
+                    - key: secret
+                      path: client-secret
+
+            extraVolumeMounts:
+              - name: client-secret
+                mountPath: /etc/alpha
+                readOnly: true
 
     - repoURL: {{.Values.schema.repoURL}}
       chart: {{.Values.schema.chart}}
