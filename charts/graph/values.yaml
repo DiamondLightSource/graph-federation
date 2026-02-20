@@ -135,20 +135,5 @@ oauth2-proxy:
               - aud
             emailClaim: email
             userIDClaim: email
-    configFile: |
-      upstreamConfig:
-        upstreams:
-          - id: router
-            path: /
-            uri: http://graph-nightly-router:3002
-  extraVolumes:
-    - name: client-secret
-      secret:
-        secretName: "graph-nightly-oauth2-client"
-        items:
-          - key: secret
-            path: client-secret
-  extraVolumeMounts:
-    - name: client-secret
-      mountPath: /etc/alpha
-      readOnly: true
+  extraVolumes: null
+  extraVolumeMounts: null

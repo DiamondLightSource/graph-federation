@@ -77,6 +77,25 @@ spec:
                 readOnly: true
 
           oauth2-proxy:
+            configFile: |
+              upstreamConfig:
+                upstreams:
+                  - id: router
+                    path: /
+                    uri: http://graph-stable-router:3002
+
+            extraVolumes:
+              - name: client-secret
+                secret:
+                  secretName: "graph-stable-oauth2-client"
+                  items:
+                    - key: secret
+                      path: client-secret
+
+            extraVolumeMounts:
+              - name: client-secret
+                mountPath: /etc/alpha
+                readOnly: true
             ingress:
               enabled: true
             alphaConfig:
