@@ -15,54 +15,10 @@ spec:
         valuesObject:
           router:
             commonConfiguration: |-
-              version: "1"
-              log_level: "debug"
-
-              listen_addr: "0.0.0.0:3002"
-              health_check_path: "/health"
-              readiness_check_path: "/health/ready"
-              liveness_check_path: "/health/live"
-
-              playground_enabled: true
-              playground_path: "/"
-              introspection:
-                enabled: true
-
-              cors:
-                allow_origins:
-                  - "*"
-
-              headers:
-                all:
-                  request:
-                    - op: "propagate"
-                      named: Authorization
-                    - op: "propagate"
-                      named: Cookie
-
-              subgraph_error_propagation:
-                mode: wrapped
-                allowed_extension_fields:
-                  - "code"
-                propagate_status_codes: true
-                attach_service_name: true
-                omit_locations: true
-                omit_extensions: false
-                default_extension_code: DOWNSTREAM_SERVICE_ERROR
-
+              {{ .Values.router.commonConfiguration | nindent 14 }}
               telemetry:
                 service_name: "router-nightly"
-                tracing:
-                  enabled: true
-                  exporters:
-                    - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
-                      exporter: "grpc"
-                metrics:
-                  otlp:
-                    enabled: true
-                    exporters:
-                      - endpoint: "http://graph-monitoring-opentelemetry-collector:4317"
-                        exporter: "grpc"
+
             extraVolumes:
               - name: router-execution-config
                 configMap:
@@ -70,12 +26,13 @@ spec:
                   items:
                     - key: execution-config.json
                       path: execution-config.json
+
             extraVolumeMounts:
               - name: router-execution-config
                 mountPath: /etc/cosmo
                 readOnly: true
 
-          "oauth2-proxy":
+          oauth2-proxy:
             ingress:
               enabled: true
               hostname: graph-nightly.diamond.ac.uk
@@ -90,18 +47,7 @@ spec:
               enabled: true
               configData:
                 providers:
-                  - provider: oidc
-                    scope: "openid profile email fedid"
-                    clientId: graph-nightly
-                    clientSecretFile: /etc/alpha/client-secret
-                    id: authn
-                    oidcConfig:
-                      issuerURL: https://authn.diamond.ac.uk/realms/master
-                      insecureAllowUnverifiedEmail: true
-                      audienceClaims:
-                        - aud
-                      emailClaim: email
-                      userIDClaim: email
+                  - clientId: graph-nightly
               configFile: |
                 upstreamConfig:
                   upstreams:

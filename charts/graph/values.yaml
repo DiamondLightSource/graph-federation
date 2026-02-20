@@ -35,10 +35,10 @@ router:
     readiness_check_path: "/health/ready"
     liveness_check_path: "/health/live"
 
-    query_plans_enabled: true
-    playground:
+    playground_enabled: true
+    playground_path: "/"
+    introspection:
       enabled: true
-      path: "/"
 
     cors:
       allow_origins:
@@ -63,7 +63,6 @@ router:
       default_extension_code: DOWNSTREAM_SERVICE_ERROR
 
     telemetry:
-      service_name: "cosmo-router"
       tracing:
         enabled: true
         exporters:
@@ -109,6 +108,7 @@ oauth2-proxy:
         "POST=^/$",
         "OPTIONS=^/$"
       ]
+
   alphaConfig:
     enabled: true
     configData:
@@ -135,5 +135,6 @@ oauth2-proxy:
               - aud
             emailClaim: email
             userIDClaim: email
+
   extraVolumes: null
   extraVolumeMounts: null
