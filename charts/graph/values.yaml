@@ -98,6 +98,7 @@ oauth2-proxy:
     hosts:
       - graph.diamond.ac.uk
     path: /
+
   config:
     configFile: |-
       skip_provider_button = true
