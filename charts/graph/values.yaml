@@ -109,6 +109,8 @@ oauth2-proxy:
         "POST=^/$",
         "OPTIONS=^/$"
       ]
+      cookie_refresh="1m"
+      cookie_expire="30m"
 
   alphaConfig:
     enabled: true
