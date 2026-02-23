@@ -115,12 +115,8 @@ spec:
                 upstreamConfig:
                   upstreams:
                     - id: router
-                      path: /
+                      path: ^/
                       uri: http://graph-nightly-router:3002
-                      allowed_methods:
-                        - GET
-                        - POST
-                        - OPTIONS
 
             extraVolumes:
               - name: client-secret
