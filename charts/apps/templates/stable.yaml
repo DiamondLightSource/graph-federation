@@ -118,6 +118,10 @@ spec:
                     - id: router
                       path: /
                       uri: http://graph-stable-router:3002
+                      allowed_methods:
+                        - GET
+                        - POST
+                        - OPTIONS
 
             extraVolumes:
               - name: client-secret
