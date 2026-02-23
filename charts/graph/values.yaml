@@ -106,6 +106,8 @@ oauth2-proxy:
         "diamond.ac.uk"
       ]
       skip_auth_routes = [
+        "POST=^/graphql$",
+        "OPTIONS=^/graphql$",
         "POST=^/$",
         "OPTIONS=^/$"
       ]
