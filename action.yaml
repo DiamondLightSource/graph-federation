@@ -156,17 +156,17 @@ runs:
       id: compose_exec
       shell: bash
       run: |
-        mkdir -p charts/graph/files
+        mkdir -p charts/supergraph/files
         wgc router compose \
           --input supergraph-config.yaml \
-          --out "charts/graph/files/${{ inputs.execution-config-filename }}"
+          --out "charts/supergraph/files/${{ inputs.execution-config-filename }}"
 
     - name: Upload Execution Config Artifact
       id: upload_exec
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.execution-config-artifact }}
-        path: charts/graph/files/${{ inputs.execution-config-filename }}
+        path: charts/supergraph/files/${{ inputs.execution-config-filename }}
         overwrite: true
 
     - name: Install Supergraph Schema Composition deps
@@ -177,9 +177,10 @@ runs:
       shell: bash
       run: |
         node .ci/generate-supergraph.mjs
-        test -s charts/graph/files/supergraph.graphql
+        mkdir -p charts/supergraph/files
+        test -s supergraph.graphql
         if [ "${{ inputs.supergraph-filename }}" != "supergraph.graphql" ]; then
-          mv charts/graph/files/supergraph.graphql "charts/graph/files/${{ inputs.supergraph-filename }}"
+          mv supergraph.graphql "charts/supergraph/files/${{ inputs.supergraph-filename }}"
         fi
 
     - name: Upload Supergraph Schema Artifact
@@ -187,7 +188,7 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.supergraph-artifact }}
-        path: charts/graph/files/${{ inputs.supergraph-filename }}
+        path: charts/supergraph/files/${{ inputs.supergraph-filename }}
         overwrite: true
 
     - name: Configure Git with App
