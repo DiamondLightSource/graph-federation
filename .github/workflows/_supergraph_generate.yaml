@@ -32,11 +32,31 @@ jobs:
       - name: Upload Execution Config Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: router-execution-config.json
+          name: router-execution-config
           path: charts/graph/files/router-execution-config.json
+
+      - name: Install Supergraph Schema Composition dependencies
+        run: npm install @wundergraph/composition graphql js-yaml
+
+      - name: Generate Supergraph Schema
+        run: |
+          node .ci/generate-supergraph.mjs
+          test -s charts/graph/files/supergraph.graphql
+
+      - name: Upload Supergraph Schema Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: supergraph-schema
+          path: charts/graph/files/supergraph.graphql
 
       - name: Release Router Execution Config
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/router-execution-config@')
         uses: softprops/action-gh-release@v1
         with:
           files: charts/graph/files/router-execution-config.json
+
+      - name: Release Supergraph Schema
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/supergraph@')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: charts/graph/files/supergraph.graphql

@@ -26,11 +26,19 @@ inputs:
     description: The name of the artifact to be created that contains the Cosmo router execution config
     required: true
     default: router-execution-config
-
   execution-config-filename:
     description: The filename of the composed Cosmo router execution config
     required: true
     default: router-execution-config.json
+
+  supergraph-artifact:
+    description: The name of the artifact to be created that contains the composed supergraph schema
+    required: true
+    default: supergraph-schema
+  supergraph-filename:
+    description: The filename of the composed supergraph schema
+    required: true
+    default: supergraph.graphql
 
   github-app-id:
     description: The ID of the GitHub App used to create the commit / pull request
@@ -50,6 +58,12 @@ outputs:
   execution-config-artifact-url:
     description: The url of the artifact containing the Cosmo router execution config
     value: ${{ steps.upload_exec.outputs.artifact-url }}
+  supergraph-artifact-id:
+    description: The id of the artifact containing the supergraph schema
+    value: ${{ steps.upload_sdl.outputs.artifact-id }}
+  supergraph-artifact-url:
+    description: The url of the artifact containing the supergraph schema
+    value: ${{ steps.upload_sdl.outputs.artifact-url }}
 
 runs:
   using: composite
@@ -153,6 +167,27 @@ runs:
       with:
         name: ${{ inputs.execution-config-artifact }}
         path: charts/graph/files/${{ inputs.execution-config-filename }}
+        overwrite: true
+
+    - name: Install Supergraph Schema Composition deps
+      shell: bash
+      run: npm install @wundergraph/composition graphql js-yaml
+
+    - name: Generate Supergraph Schema
+      shell: bash
+      run: |
+        node .ci/generate-supergraph.mjs
+        test -s charts/graph/files/supergraph.graphql
+        if [ "${{ inputs.supergraph-filename }}" != "supergraph.graphql" ]; then
+          mv charts/graph/files/supergraph.graphql "charts/graph/files/${{ inputs.supergraph-filename }}"
+        fi
+
+    - name: Upload Supergraph Schema Artifact
+      id: upload_sdl
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.supergraph-artifact }}
+        path: charts/graph/files/${{ inputs.supergraph-filename }}
         overwrite: true
 
     - name: Configure Git with App

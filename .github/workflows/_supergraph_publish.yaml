@@ -40,7 +40,14 @@ jobs:
         uses: actions/download-artifact@v4.1.8
         with:
           name: router-execution-config
-          path: charts/graph
+          path: charts/graph/files
+
+      - name: Download Supergraph Schema Artifact
+        if: steps.version.outputs.result != ''
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: supergraph-schema
+          path: charts/graph/files
 
       - name: Package Chart
         if: steps.version.outputs.result != ''

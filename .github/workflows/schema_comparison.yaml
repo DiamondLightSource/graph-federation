@@ -30,29 +30,59 @@ jobs:
             --input supergraph-config.yaml \
             --out /tmp/old_router-execution-config.json
 
+      - name: Install Schema Composition Dependencies
+        run: npm install @wundergraph/composition graphql js-yaml
+
+      - name: Compose Old Supergraph Schema (main)
+        run: |
+          node .ci/generate-supergraph.mjs
+          cp charts/graph/files/supergraph.graphql /tmp/old_supergraph.graphql
+
       - name: Checkout Source
         uses: actions/checkout@v4.2.2
 
       - name: Compose New Execution Config (PR)
         run: |
+          mkdir -p charts/graph/files
           wgc router compose \
             --input supergraph-config.yaml \
             --out charts/graph/files/router-execution-config.json
 
+      - name: Install Supergraph Composition Dependencies (PR)
+        run: npm install @wundergraph/composition graphql js-yaml
+
+      - name: Generate New Supergraph Schema (PR)
+        run: |
+          node .ci/generate-supergraph.mjs
+          cp charts/graph/files/supergraph.graphql /tmp/new_supergraph.graphql
+
       - name: Normalize JSON
         run: |
           jq -S . /tmp/old_router-execution-config.json > /tmp/old_sorted.json
-          jq -S . router-execution-config.json > /tmp/new_sorted.json
+          jq -S . charts/graph/files/router-execution-config.json > /tmp/new_sorted.json
 
-      - name: Generate Diff
+      - name: Execution Config Diff
         run: |
-          git --no-pager diff --no-index --minimal /tmp/old_sorted.json /tmp/new_sorted.json > diff.md || true
-          if [ -s diff.md ]; then echo "has_diff=true" >> $GITHUB_ENV; fi
-          sed -i '1s/^/```diff\n/; $a```' diff.md
+          git --no-pager diff --no-index --minimal /tmp/old_sorted.json /tmp/new_sorted.json > exec_diff.md || true
+          if [ -s exec_diff.md ]; then echo "has_exec_diff=true" >> $GITHUB_ENV; fi
+          sed -i '1s/^/```diff\n/; $a```' exec_diff.md
 
-      - name: Comment PR with artefact comparison report
-        if: env.has_diff == 'true'
+      - name: Supergraph Schema Diff
+        run: |
+          git --no-pager diff --no-index --minimal /tmp/old_supergraph.graphql /tmp/new_supergraph.graphql > schema_diff.md || true
+          if [ -s schema_diff.md ]; then echo "has_schema_diff=true" >> $GITHUB_ENV; fi
+          sed -i '1s/^/```diff\n/; $a```' schema_diff.md
+
+      - name: Comment PR with Execution Config diff
+        if: env.has_exec_diff == 'true'
         uses: JoseThen/comment-pr@v1.2.0
         with:
-          file_path: diff.md
+          file_path: exec_diff.md
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment PR with Supergraph Schema Diff
+        if: env.has_schema_diff == 'true'
+        uses: JoseThen/comment-pr@v1.2.0
+        with:
+          file_path: schema_diff.md
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
