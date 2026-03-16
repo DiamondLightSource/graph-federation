@@ -69,6 +69,6 @@ if (!schema) {
   process.exit(1);
 }
 
-const outPath = path.resolve(path.dirname(configPath), "charts/graph/files/supergraph.graphql");
+const outPath = path.resolve(path.dirname(configPath), "supergraph.graphql");
 writeFileSync(outPath, printSchema(schema), "utf8");
 console.log("Wrote supergraph schema to:", outPath);

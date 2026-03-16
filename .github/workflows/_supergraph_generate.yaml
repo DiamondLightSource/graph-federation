@@ -24,16 +24,15 @@ jobs:
 
       - name: Compose Execution Config
         run: |
-          mkdir -p charts/graph/files
           wgc router compose \
             --input supergraph-config.yaml \
-            --out charts/graph/files/router-execution-config.json
+            --out router-execution-config.json
 
       - name: Upload Execution Config Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: router-execution-config
-          path: charts/graph/files/router-execution-config.json
+          name: router-execution-config.json
+          path: router-execution-config.json
 
       - name: Install Supergraph Schema Composition dependencies
         run: npm install @wundergraph/composition graphql js-yaml
@@ -41,22 +40,18 @@ jobs:
       - name: Generate Supergraph Schema
         run: |
           node .ci/generate-supergraph.mjs
-          test -s charts/graph/files/supergraph.graphql
+          test -s supergraph.graphql
 
       - name: Upload Supergraph Schema Artifact
         uses: actions/upload-artifact@v4
         with:
           name: supergraph-schema
-          path: charts/graph/files/supergraph.graphql
+          path: supergraph.graphql
 
-      - name: Release Router Execution Config
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/router-execution-config@')
+      - name: Release Router Execution Config and Schema
+        if: github.event_name == 'push' && ( startsWith(github.ref, 'refs/tags/supergraph-schema@') )
         uses: softprops/action-gh-release@v1
         with:
-          files: charts/graph/files/router-execution-config.json
-
-      - name: Release Supergraph Schema
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/supergraph@')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: charts/graph/files/supergraph.graphql
+          files: |
+            router-execution-config.json
+            supergraph.graphql
