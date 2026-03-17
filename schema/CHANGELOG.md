@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v1.3.0...supergraph-schema@v2.0.0) (2026-03-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* migrate fully to cosmo
+
+### Features
+
+* migrate fully to cosmo ([f6ac7ed](https://github.com/DiamondLightSource/graph-federation/commit/f6ac7eddfed72dc4b7b1a75075b0c9c67e058893))
+* update instrument_sessions schema to instrument_sessions 0.3.0 ([1ac4e34](https://github.com/DiamondLightSource/graph-federation/commit/1ac4e347bf3035b293d6646a679d6745b988dfef))
+* update samples schema to samples 0.2.0 ([36af300](https://github.com/DiamondLightSource/graph-federation/commit/36af300b712f8dc3e0d6e7302d5f8fa404ef4165))
+
 ## [1.3.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v1.2.0...supergraph-schema@v1.3.0) (2025-10-16)
 
 ### Features
