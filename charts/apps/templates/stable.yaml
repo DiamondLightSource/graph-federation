@@ -86,9 +86,9 @@ spec:
           oauth2-proxy:
             ingress:
               enabled: true
-              hostname: graph-stable.diamond.ac.uk
+              hostname: graph.diamond.ac.uk
               hosts:
-                - graph-stable.diamond.ac.uk
+                - graph.diamond.ac.uk
               annotations:
                 nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
                 nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
@@ -102,7 +102,7 @@ spec:
                 providers:
                   - provider: oidc
                     scope: "openid profile email fedid"
-                    clientId: graph-stable
+                    clientId: graph
                     clientSecretFile: /etc/alpha/client-secret
                     id: authn
                     oidcConfig:
