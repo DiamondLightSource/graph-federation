@@ -30,7 +30,6 @@ router:
     json_log: true
 
     listen_addr: "0.0.0.0:3002"
-
     health_check_path: "/health"
     readiness_check_path: "/health/ready"
     liveness_check_path: "/health/live"
