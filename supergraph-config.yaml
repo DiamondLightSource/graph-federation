@@ -15,7 +15,7 @@ subgraphs:
     routing_url: https://sample-information.diamond.ac.uk/api/graphql
     schema:
       file: schema/samples.graphql
-  schemas:
+  - name: schemas
     routing_url: https://schemas.diamond.ac.uk/graphql
     schema:
       file: schema/schemas.graphql
