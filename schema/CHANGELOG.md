@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.1.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.0.0...supergraph-schema@v3.1.0) (2026-03-18)
+
+
+### Features
+
+* update schemas schema to schemas test ([25f795d](https://github.com/DiamondLightSource/graph-federation/commit/25f795ddc0a029fa41da7f5f96fd9fb6bf5f9198))
+* update workflows schema to graph-proxy@v0.1.17 ([cc13da3](https://github.com/DiamondLightSource/graph-federation/commit/cc13da3f7afb7d393d6dcdb3aa051ccd163c7e80))
+
 ## [3.0.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v2.0.0...supergraph-schema@v3.0.0) (2026-03-18)
 
 
