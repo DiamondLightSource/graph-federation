@@ -101,12 +101,12 @@ spec:
               configData:
                 providers:
                   - provider: oidc
-                    scope: "openid profile email fedid"
+                    scope: "openid profile email fedid posix-id"
                     clientId: graph
                     clientSecretFile: /etc/alpha/client-secret
                     id: authn
                     oidcConfig:
-                      issuerURL: https://authn.diamond.ac.uk/realms/master
+                      issuerURL: https://identity.diamond.ac.uk/realms/dls
                       insecureAllowUnverifiedEmail: true
                       audienceClaims:
                         - aud
