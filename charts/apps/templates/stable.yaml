@@ -101,7 +101,7 @@ spec:
               configData:
                 providers:
                   - provider: oidc
-                    scope: "openid profile email fedid posix-id"
+                    scope: "openid profile email fedid posix-uid"
                     clientId: graph
                     clientSecretFile: /etc/alpha/client-secret
                     id: authn
