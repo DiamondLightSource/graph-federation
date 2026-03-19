@@ -195,8 +195,12 @@ opentelemetry-collector:
                 - targets:
                   - ${env:MY_POD_IP}:8888
     exporters:
-      otlp/jaeger:
+      otlp/jaeger/A:
         endpoint: "{{ .Release.Name }}-jaeger-collector:4317"
+        tls:
+          insecure: true
+      otlp/jaeger/B:
+        endpoint: "https://otel.tracing.diamond.ac.uk:4317"
         tls:
           insecure: true
       prometheus:
@@ -219,4 +223,5 @@ opentelemetry-collector:
             - memory_limiter
             - batch
           exporters:
-            - otlp/jaeger
+            - otlp/jaeger/A
+            - otlp/jaeger/B
