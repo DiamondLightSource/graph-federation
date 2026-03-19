@@ -179,9 +179,7 @@ runs:
         node .ci/generate-supergraph.mjs
         mkdir -p charts/supergraph/files
         test -s supergraph.graphql
-        if [ "${{ inputs.supergraph-filename }}" != "supergraph.graphql" ]; then
-          mv supergraph.graphql "charts/supergraph/files/${{ inputs.supergraph-filename }}"
-        fi
+        mv supergraph.graphql "charts/supergraph/files/${{ inputs.supergraph-filename }}"
 
     - name: Upload Supergraph Schema Artifact
       id: upload_sdl

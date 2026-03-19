@@ -47,6 +47,7 @@ jobs:
         with:
           name: supergraph-schema
           path: supergraph.graphql
+          overwrite: true
 
       - name: Release Router Execution Config and Schema
         if: github.event_name == 'push' && ( startsWith(github.ref, 'refs/tags/supergraph-schema@') )
