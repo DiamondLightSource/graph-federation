@@ -39,7 +39,7 @@ jobs:
           subgraph-schema-filename: test-schema.graphql
           execution-config-artifact: router-execution-config
           execution-config-filename: router-execution-config.json
-          supergraph-artifact: supergraph-schema
+          supergraph-artifact: compose-supergraph-without-app
           supergraph-filename: supergraph.graphql
           publish: false
 
@@ -52,7 +52,7 @@ jobs:
           subgraph-schema-filename: test-schema.graphql
           execution-config-artifact: router-execution-config
           execution-config-filename: router-execution-config.json
-          supergraph-artifact: supergraph-schema
+          supergraph-artifact: compose-supergraph-with-app
           supergraph-filename: supergraph.graphql
           github-app-id: 1010045
           github-app-private-key: ${{ secrets.GRAPH_FEDERATOR }}
