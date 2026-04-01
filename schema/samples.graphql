@@ -97,16 +97,6 @@ type InstrumentSession @key(fields: "instrumentSessionNumber proposal { proposal
   samples(first: Int!, filter: SampleFilterInput! = {}, before: String = null, after: String = null, last: Int = null, orderBy: SampleOrder! = {}): SampleConnection!
 }
 
-type InstrumentSessionConnection {
-  edges: [InstrumentSessionEdge!]!
-  pageInfo: PageInfo!
-}
-
-type InstrumentSessionEdge {
-  cursor: String!
-  node: InstrumentSession!
-}
-
 input InstrumentSessionInput {
   proposalNumber: Int!
   instrumentSessionNumber: Int!
@@ -172,14 +162,14 @@ type Query {
   _entities(representations: [_Any!]!): [_Entity]!
   _service: _Service!
 
-  """Get a list of samples associated with a given instrument session"""
-  samples(first: Int!, instrumentSessions: [InstrumentSessionInput!] = null, filter: SampleFilterInput! = {}, before: String = null, after: String = null, last: Int = null, orderBy: SampleOrder! = {}): SampleConnection!
-
   """Get a sample by its id"""
   sample(sampleId: UUID!): Sample
+
+  """Get a list of samples associated with a given instrument session"""
+  samples(first: Int!, instrumentSessions: [InstrumentSessionInput!] = null, filter: SampleFilterInput! = {}, before: String = null, after: String = null, last: Int = null, orderBy: SampleOrder! = {}): SampleConnection!
 }
 
-type Sample {
+type Sample @key(fields: "id") {
   id: UUID!
   name: String!
   data: JSON!
@@ -200,16 +190,16 @@ type Sample {
   dataSchema: JSON!
 
   """The instrument sessions that this sample is associated with"""
-  instrumentSessions: InstrumentSessionConnection! @provides(fields: "edges{ node{ instrumentSessionNumber proposal{ proposalNumber }}}")
+  instrumentSessions: [InstrumentSession!]! @provides(fields: "instrumentSessionNumber proposal{ proposalNumber }")
   images: [SampleImage!]!
 }
 
-type SampleConnection {
+type SampleConnection @shareable {
   edges: [SampleEdge!]!
   pageInfo: PageInfo!
 }
 
-type SampleEdge {
+type SampleEdge @shareable {
   cursor: String!
   node: Sample!
 }
@@ -220,12 +210,12 @@ type SampleEvent {
   description: String!
 }
 
-type SampleEventConnection {
+type SampleEventConnection @shareable {
   edges: [SampleEventEdge!]!
   pageInfo: PageInfo!
 }
 
-type SampleEventEdge {
+type SampleEventEdge @shareable {
   cursor: String!
   node: SampleEvent!
 }
@@ -270,6 +260,7 @@ input SampleInLegacy {
 
 type SampleMutations {
   sampleId: UUID!
+  updateSample(input: UpdateSampleInput!): UpdateSampleResponse!
   linkInstrumentSessionToSample(proposalNumber: Int!, instrumentSessionNumber: Int!): Void
   addSampleEvent(sampleEvent: AddSampleEventInput!): SampleEvent!
   createSampleImageUploadUrl(filename: String!, contentType: String!, contentLength: Int!): String!
@@ -327,12 +318,35 @@ input StringOperatorInput {
 
 scalar UUID
 
+input UpdateSampleInput {
+  """Name of the sample"""
+  name: String
+
+  """Data of the sample"""
+  data: JSON
+
+  """URL of the JSON schema the samples' `data` should be validated against"""
+  dataSchemaUrl: String
+}
+
+"""Return type when creating or validating samples"""
+type UpdateSampleResponse {
+  """Whether the operation has succeeded without validation errors"""
+  success: Boolean!
+
+  """Sample that has been updated"""
+  sample: Sample
+
+  """Errors that occurred during sample validation"""
+  errors: [SampleValidationError!]!
+}
+
 """Represents NULL values"""
 scalar Void
 
 scalar _Any
 
-union _Entity = InstrumentSession | InstrumentSessionMutations | Proposal
+union _Entity = InstrumentSession | InstrumentSessionMutations | Proposal | Sample
 
 type _Service {
   sdl: String!
