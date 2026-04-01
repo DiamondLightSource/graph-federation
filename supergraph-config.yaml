@@ -19,3 +19,7 @@ subgraphs:
     routing_url: https://schemas.diamond.ac.uk/graphql
     schema:
       file: schema/schemas.graphql
+  - name: datacat
+    routing_url: https://api.cats.diamond.ac.uk/graphql
+    schema:
+      file: schema/datacat.graphql
