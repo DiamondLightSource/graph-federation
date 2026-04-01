@@ -1,0 +1,346 @@
+directive @oneOf on INPUT_OBJECT
+
+schema @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@external", "@key", "@provides", "@shareable"]) {
+  query: Query
+  mutation: Mutation
+}
+
+"""Attachment to dataset"""
+type Attachment {
+  """Internal identifier for attachment"""
+  id: Int!
+
+  """Title of attachment"""
+  title: String
+
+  """Short summary of attachment"""
+  description: String
+
+  """Created timestamp"""
+  createdTime: DateTime!
+
+  """Modified timestamp"""
+  updatedTime: DateTime!
+
+  """Where attachment can be accessed"""
+  location: String!
+
+  """Type of attachment (could be file type)"""
+  type: String!
+  dataset: Dataset!
+}
+
+"""Values to add attachment to dataset"""
+input AttachmentCreateInput {
+  """Title of attachment"""
+  title: String
+
+  """Short summary of attachment"""
+  description: String
+
+  """
+  Where attachment can be accessed. This should be an s3 object key if attachment type is 'image'
+  """
+  location: String!
+
+  """Type of attachment (could be file type)"""
+  type: String!
+
+  """Local identifier for dataset."""
+  datasetId: Int!
+}
+
+"""Required fields to get presigned upload URL"""
+input AttachmentCreateUrlInput {
+  """Local identifier for dataset."""
+  datasetId: Int!
+
+  """Name of the attachment file"""
+  fileName: String!
+
+  """Type of attachment (could be file type)"""
+  fileType: String!
+
+  """Size of the attachemnt file (in Bytes)"""
+  fileSize: Int!
+}
+
+"""Values to update an existing attachment"""
+input AttachmentUpdateInput {
+  """Title of attachment"""
+  title: String
+
+  """Short summary of attachment"""
+  description: String
+}
+
+"""Dataset information"""
+type Dataset {
+  """Local identifier for dataset."""
+  id: Int!
+
+  """Title of dataset"""
+  title: String!
+
+  """Short description about dataset"""
+  description: String
+
+  """Created timestamp"""
+  createdTime: DateTime!
+
+  """Modified timestamp"""
+  updatedTime: DateTime!
+
+  """Type of dataset (raw or derived)"""
+  type: DatasetTypeEnum!
+
+  """Data about the dataset"""
+  data: JSON!
+
+  """JSON schema used to validate data"""
+  dataSchema: String!
+
+  """Scan that produced this dataset"""
+  scanNumber: Int
+  attachments: [Attachment!]!
+  tags: [String!]!
+
+  """The instrument sessions that this dataset is associated with"""
+  instrumentSession: InstrumentSession! @provides(fields: "instrumentSessionNumber proposal{ proposalNumber }")
+}
+
+type DatasetConnection {
+  edges: [DatasetEdge!]!
+  pageInfo: PageInfo!
+}
+
+"""Values to create a new dataset"""
+input DatasetCreateInput {
+  """Title of dataset"""
+  title: String!
+
+  """Short description about dataset"""
+  description: String = null
+
+  """Type of dataset (raw or derived)"""
+  type: DatasetTypeEnum!
+
+  """Data about the dataset"""
+  data: JSON!
+
+  """JSON schema used to validate data"""
+  dataSchema: String!
+
+  """Proposal number (often 5 digits)"""
+  proposalNumber: Int!
+
+  """Session dataset was created (often single digit appended to proposal)"""
+  instrumentSessionNumber: Int!
+
+  """Scan that produced this dataset"""
+  scanNumber: Int = null
+}
+
+type DatasetEdge {
+  node: Dataset!
+  cursor: String!
+}
+
+input DatasetFilterInput {
+  """Filter on the `name` field of `Dataset`"""
+  title: StringOperatorInput = null
+
+  """Filter on the `data` field of `Dataset`"""
+  data: [JSONOperatorInput!] = null
+
+  """Filter on tags"""
+  tags: TagStringArrayOperatorInput = null
+}
+
+enum DatasetTypeEnum {
+  """A raw scan without processing"""
+  RAW
+
+  """The result of a processed scan"""
+  DERIVED
+}
+
+"""Values to update an existing dataset"""
+input DatasetUpdateInput {
+  """Title of dataset"""
+  title: String
+
+  """Short description about dataset"""
+  description: String
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+input DatetimeOperatorInput {
+  """
+  Will filter to items where the `DateTime` field is greater than (i.e. after) the provided value
+  """
+  gt: DateTime = null
+
+  """
+  Will filter to items where the `DateTime` field is less than (i.e. before) the provided value
+  """
+  lt: DateTime = null
+}
+
+type InstrumentSession @key(fields: "instrumentSessionNumber proposal { proposalNumber }") {
+  instrumentSessionNumber: Int! @external
+  proposal: Proposal @external
+
+  """Datasets associated with a given instrument session"""
+  datasets(pagination: PaginationInput = null, filter: DatasetFilterInput = null): DatasetConnection!
+}
+
+"""Values required to uniquely identify an instrument session"""
+input InstrumentSessionKey {
+  """Proposal number (often 5 digits)"""
+  proposalNumber: Int!
+
+  """Session dataset was created (often single digit appended to proposal)"""
+  instrumentSessionNumber: Int!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf).
+"""
+scalar JSON @specifiedBy(url: "https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf")
+
+input JSONOperator @oneOf {
+  stringOperator: StringOperatorInput = null
+  datetimeOperator: DatetimeOperatorInput = null
+  numericOperator: NumericOperatorInput = null
+}
+
+input JSONOperatorInput {
+  """A JSON path specifying the value to filter. Must start with '$.'"""
+  path: String!
+
+  """The operator to apply to the JSON field"""
+  operator: JSONOperator!
+}
+
+type Mutation {
+  addDataset(createInput: DatasetCreateInput!): Dataset!
+  updateDataset(id: Int!, updateInput: DatasetUpdateInput!): Dataset
+  addAttachment(createInput: AttachmentCreateInput!): Attachment!
+  updateAttachment(id: Int!, updateInput: AttachmentUpdateInput!): Attachment
+  createAttachmentUploadUrl(createInput: [AttachmentCreateUrlInput!]!): [PresignedUrlInfo!]!
+  addTags(tagInput: TagCreateInput!): [String!]!
+  deleteDataset(id: Int!): Void
+  deleteAttachment(id: Int!): Void
+  removeTags(tagInput: TagRemoveInput!): Void
+}
+
+input NumericOperatorInput {
+  """
+  Will filter to items where the numeric field is greater than the provided value
+  """
+  gt: Float = null
+
+  """
+  Will filter to items where the numeric field is less than the provided value
+  """
+  lt: Float = null
+}
+
+type PageInfo @shareable {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+input PaginationInput {
+  sortBy: String = null
+  sortOrder: String = null
+  first: Int = null
+  after: String = null
+  last: Int = null
+  before: String = null
+}
+
+type PresignedUrlInfo {
+  datasetId: Int!
+  uploadUrl: String!
+  location: String!
+}
+
+type Proposal @key(fields: "proposalNumber") {
+  proposalNumber: Int! @external
+}
+
+type Query {
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+  dataset(id: Int!): Dataset
+  datasets(instrumentSessions: [InstrumentSessionKey!]!, pagination: PaginationInput = null, filter: DatasetFilterInput = null): DatasetConnection!
+  attachment(id: Int!): Attachment
+  tags: [String!]!
+}
+
+"""Conditions used to filter results based on the value of a String field"""
+input StringOperatorInput {
+  """
+  Will filter to items where the `String` field is equal to the provided value
+  """
+  eq: String = null
+
+  """
+  Will filter to items where the `String` field is not equal to the provided value
+  """
+  ne: String = null
+
+  """
+  Will filter to items where the `String` field is a member of the provided value
+  """
+  in: [String!] = null
+
+  """
+  Will filter to items where the `String` field is not a member of the provided value
+  """
+  nin: [String!] = null
+
+  """
+  Will filter to items where the `String` field is contains the provided value
+  """
+  contains: String = null
+}
+
+"""Values to add tags to dataset"""
+input TagCreateInput {
+  """Tags on a dataset"""
+  values: [String!]!
+
+  """Identifier of the dataset"""
+  datasetId: Int!
+}
+
+"""Values to remove tags from dataset"""
+input TagRemoveInput {
+  """Tags on a dataset"""
+  values: [String!]!
+
+  """Identifier of the dataset"""
+  datasetId: Int!
+}
+
+input TagStringArrayOperatorInput {
+  allOf: [String!]!
+}
+
+"""Represents NULL values"""
+scalar Void
+
+scalar _Any
+
+union _Entity = InstrumentSession | Proposal
+
+type _Service {
+  sdl: String!
+}
