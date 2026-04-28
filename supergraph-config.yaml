@@ -1,12 +1,5 @@
 version: 1
 subgraphs:
-  - name: workflows
-    routing_url: https://workflows.diamond.ac.uk/graphql
-    subscription:
-      url: wss://workflows.diamond.ac.uk/graphql/ws
-      protocol: ws
-    schema:
-      file: schema/workflows.graphql
   - name: instrument_sessions
     routing_url: https://instrument-sessions.diamond.ac.uk/api/graphql
     schema:
@@ -19,3 +12,7 @@ subgraphs:
     routing_url: https://schemas.diamond.ac.uk/graphql
     schema:
       file: schema/schemas.graphql
+  - name: workflows
+    routing_url: https://workflows.diamond.ac.uk/graphql
+    schema:
+      file: schema/workflows.graphql
