@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.1.0...supergraph-schema@v3.2.0) (2026-04-29)
+
+
+### Features
+
+* update samples schema to samples 0.3.0 ([8bb8984](https://github.com/DiamondLightSource/graph-federation/commit/8bb8984794991afe620c402bdc1af493401a8a6a))
+
 ## [3.1.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.0.0...supergraph-schema@v3.1.0) (2026-03-18)
 
 
