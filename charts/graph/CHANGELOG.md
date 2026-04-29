@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.1](https://github.com/DiamondLightSource/graph-federation/compare/graph@v0.13.0...graph@v0.13.1) (2026-04-29)
+
+
+### Features
+
+* migrate to identity auth ([ad5c386](https://github.com/DiamondLightSource/graph-federation/commit/ad5c386c33c7d5292ec68943e184a592ed4f86cb))
+
 ## [0.13.0](https://github.com/DiamondLightSource/graph-federation/compare/graph@v0.12.2...graph@v0.13.0) (2026-03-18)
 
 
