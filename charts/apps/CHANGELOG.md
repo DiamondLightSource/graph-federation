@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.2](https://github.com/DiamondLightSource/graph-federation/compare/apps@v0.3.1...apps@v0.3.2) (2026-04-29)
+
+
+### Features
+
+* migrate to identity auth ([ad5c386](https://github.com/DiamondLightSource/graph-federation/commit/ad5c386c33c7d5292ec68943e184a592ed4f86cb))
+
+
+### Bug Fixes
+
+* correct posix-uid scope ([f6f20f8](https://github.com/DiamondLightSource/graph-federation/commit/f6f20f87678f0139e474f9c94a69cde36616c54b))
+
 ## [0.3.1](https://github.com/DiamondLightSource/graph-federation/compare/apps@v0.3.0...apps@v0.3.1) (2026-03-18)
 
 
