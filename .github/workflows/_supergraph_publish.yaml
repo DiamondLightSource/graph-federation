@@ -33,7 +33,7 @@ jobs:
 
       - name: Setup Helm
         if: steps.version.outputs.result != ''
-        uses: azure/setup-helm@v4.2.0
+        uses: azure/setup-helm@v5.0.0
 
       - name: Download Router Execution Config Artifact
         if: steps.version.outputs.result != ''
