@@ -51,7 +51,7 @@ jobs:
 
       - name: Release Router Execution Config and Schema
         if: github.event_name == 'push' && ( startsWith(github.ref, 'refs/tags/supergraph-schema@') )
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             router-execution-config.json
