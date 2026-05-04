@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
 
@@ -39,7 +39,7 @@ jobs:
           cp supergraph.graphql /tmp/old_supergraph.graphql
 
       - name: Checkout Source
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v6
 
       - name: Compose New Execution Config (PR)
         run: |

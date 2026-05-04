@@ -20,7 +20,7 @@ jobs:
         run: npm install -g wgc@latest
 
       - name: Checkout Source
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v6
 
       - name: Compose Execution Config
         run: |
