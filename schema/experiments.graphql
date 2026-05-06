@@ -1,0 +1,144 @@
+schema @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@external", "@key", "@provides", "@shareable"]) {
+  query: Query
+  mutation: Mutation
+}
+
+"""Values required to create an experiment definition"""
+input CreateExperimentDefinitionInput {
+  name: String!
+  data: JSON!
+  dataSchemaUrl: String!
+  proposalNumber: Int!
+  instrumentSessionNumber: Int!
+}
+
+"""Values required for the createExperiments mutation"""
+input CreateExperimentsInput {
+  experiments: [ExperimentInput!]!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+type Experiment @key(fields: "id") {
+  id: UUID!
+  name: String!
+  createdTime: DateTime!
+  updatedTime: DateTime!
+  experimentDefinition: ExperimentDefinition!
+
+  """The sample that this experiment is associated with"""
+  sample: Sample! @provides(fields: "id")
+}
+
+type ExperimentConnection @shareable {
+  edges: [ExperimentEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ExperimentDefinition {
+  id: UUID!
+  name: String!
+  createdTime: DateTime!
+  updatedTime: DateTime!
+  data: JSON!
+  dataSchemaUrl: String!
+  proposalNumber: Int!
+  instrumentSessionNumber: Int!
+
+  """
+  The instrument session that this experiment definition is associated with
+  """
+  instrumentSession: InstrumentSession! @provides(fields: "instrumentSessionNumber proposal{ proposalNumber }")
+
+  """Experiments associated with this experiment definition"""
+  experiments: [Experiment!]!
+}
+
+type ExperimentDefinitionConnection @shareable {
+  edges: [ExperimentDefinitionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ExperimentDefinitionEdge @shareable {
+  cursor: String!
+  node: ExperimentDefinition!
+}
+
+"""Mutations for a given experiment defintion"""
+type ExperimentDefinitionMutations {
+  createExperiments(input: CreateExperimentsInput!): [Experiment!]!
+}
+
+type ExperimentEdge @shareable {
+  cursor: String!
+  node: Experiment!
+}
+
+"""Values required to create an experiment"""
+input ExperimentInput {
+  name: String!
+  sampleId: UUID!
+}
+
+type InstrumentSession @key(fields: "instrumentSessionNumber proposal { proposalNumber }") {
+  instrumentSessionNumber: Int! @external
+  proposal: Proposal @external
+
+  """Experiment Definitions"""
+  experimentDefinitions(first: Int = null, last: Int = null, after: String = null, before: String = null): ExperimentDefinitionConnection!
+
+  """Experiments associated with this session"""
+  experiments(first: Int = null, last: Int = null, after: String = null, before: String = null): ExperimentConnection!
+}
+
+"""Values required to uniquely identify an instrument session"""
+input InstrumentSessionInput {
+  proposalNumber: Int!
+  instrumentSessionNumber: Int!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf).
+"""
+scalar JSON @specifiedBy(url: "https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf")
+
+type Mutation {
+  createExperimentDefinition(input: CreateExperimentDefinitionInput!): ExperimentDefinition
+  experimentDefinition(id: UUID!): ExperimentDefinitionMutations
+}
+
+type PageInfo @shareable {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type Proposal @key(fields: "proposalNumber") {
+  proposalNumber: Int! @external
+}
+
+type Query {
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+  experimentDefinition(id: UUID!): ExperimentDefinition
+  experimentDefinitions(instrumentSessions: [InstrumentSessionInput!]!, first: Int = null, last: Int = null, after: String = null, before: String = null): ExperimentDefinitionConnection
+  experiment(id: UUID!): Experiment
+  experiments(instrumentSessions: [InstrumentSessionInput!]!, first: Int = null, last: Int = null, after: String = null, before: String = null): ExperimentConnection
+}
+
+type Sample @key(fields: "id") {
+  id: UUID! @external
+  experiments: [Experiment!]!
+}
+
+scalar UUID
+
+scalar _Any
+
+union _Entity = Experiment | InstrumentSession | Proposal | Sample
+
+type _Service {
+  sdl: String!
+}
