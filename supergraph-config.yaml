@@ -7,10 +7,6 @@ subgraphs:
       protocol: ws
     schema:
       file: schema/workflows.graphql
-  - name: instrument_sessions
-    routing_url: https://instrument-sessions.diamond.ac.uk/api/graphql
-    schema:
-      file: schema/instrument_sessions.graphql
   - name: schemas
     routing_url: https://schemas.diamond.ac.uk/graphql
     schema:
@@ -23,3 +19,7 @@ subgraphs:
     routing_url: https://api.experiment-definition.diamond.ac.uk/graphql
     schema:
       file: schema/experiments.graphql
+  - name: instrument_sessions
+    routing_url: https://instrument-sessions.diamond.ac.uk/api/graphql
+    schema:
+      file: schema/instrument_sessions.graphql
