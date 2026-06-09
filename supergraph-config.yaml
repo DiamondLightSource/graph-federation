@@ -4,7 +4,7 @@ subgraphs:
     routing_url: https://workflows.diamond.ac.uk/graphql
     subscription:
       url: wss://workflows.diamond.ac.uk/graphql/ws
-      protocol: ws
+      protocol: graphql-ws
     schema:
       file: schema/workflows.graphql
   - name: schemas
