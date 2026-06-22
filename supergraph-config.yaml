@@ -11,15 +11,15 @@ subgraphs:
     routing_url: https://schemas.diamond.ac.uk/graphql
     schema:
       file: schema/schemas.graphql
-  - name: experiments
-    routing_url: https://api.experiment-definition.diamond.ac.uk/graphql
-    schema:
-      file: schema/experiments.graphql
-  - name: instrument_sessions
-    routing_url: https://instrument-sessions.diamond.ac.uk/api/graphql
-    schema:
-      file: schema/instrument_sessions.graphql
   - name: samples
     routing_url: https://sample-information.diamond.ac.uk/api/graphql
     schema:
       file: schema/samples.graphql
+  - name: instrument_sessions
+    routing_url: https://instrument-sessions.diamond.ac.uk/api/graphql
+    schema:
+      file: schema/instrument_sessions.graphql
+  - name: experiments
+    routing_url: https://api.experiment-definition.diamond.ac.uk/graphql
+    schema:
+      file: schema/experiments.graphql
