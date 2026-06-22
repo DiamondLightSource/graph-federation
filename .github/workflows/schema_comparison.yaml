@@ -31,7 +31,7 @@ jobs:
             --out /tmp/old_router-execution-config.json
 
       - name: Install Schema Composition Dependencies
-        run: npm install @wundergraph/composition graphql js-yaml
+        run: npm install @wundergraph/composition@0.59.0 graphql@16.14.2 js-yaml@4.2.0
 
       - name: Compose Old Supergraph Schema (main)
         run: |
@@ -48,7 +48,7 @@ jobs:
             --out router-execution-config.json
 
       - name: Install Supergraph Composition Dependencies (PR)
-        run: npm install @wundergraph/composition graphql js-yaml
+        run: npm install @wundergraph/composition@0.59.0 graphql@16.14.2 js-yaml@4.2.0
 
       - name: Generate New Supergraph Schema (PR)
         run: |
