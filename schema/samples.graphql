@@ -258,7 +258,7 @@ input SampleInLegacy {
   children: [SampleInLegacy!] = null
 }
 
-type SampleMutations {
+type SampleMutations @key(fields: "sampleId") {
   sampleId: UUID!
   updateSample(input: UpdateSampleInput!): UpdateSampleResponse!
   linkInstrumentSessionToSample(proposalNumber: Int!, instrumentSessionNumber: Int!): Void
@@ -346,7 +346,7 @@ scalar Void
 
 scalar _Any
 
-union _Entity = InstrumentSession | InstrumentSessionMutations | Proposal | Sample
+union _Entity = InstrumentSession | InstrumentSessionMutations | Proposal | Sample | SampleMutations
 
 type _Service {
   sdl: String!
