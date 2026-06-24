@@ -120,24 +120,48 @@ runs:
         SUB_URL: ${{ inputs.subscription-url }}
         SUB_PROTO: ${{ inputs.subscription-protocol }}
       run: |
+        set -e
+
+        # Ensure subgraphs array exists
         yq -i '.subgraphs = (.subgraphs // [])' supergraph-config.yaml
-        yq -i '
-          .subgraphs = (.subgraphs | map(select(.name != "'"$NAME"'")))
-        ' supergraph-config.yaml
-        yq -i '
-          .subgraphs += [{
-            "name": "'"$NAME"'",
-            "routing_url": "'"$ROUTING_URL"'",
-            "schema": { "file": "schema/'"$NAME"'.graphql" }
-          }]
-        ' supergraph-config.yaml
-        if [ -n "$SUB_URL" ]; then
+
+        # Check if subgraph already exists
+        if yq e '.subgraphs[].name' supergraph-config.yaml | grep -qx "$NAME"; then
+          echo "Updating existing subgraph: $NAME"
+
+          # If exists, update schema & routing URL
           yq -i '
-            .subgraphs[-1].subscription = {
+            (.subgraphs[] | select(.name == "'"$NAME"'")).routing_url = "'"$ROUTING_URL"'"
+          ' supergraph-config.yaml
+
+          yq -i '
+            (.subgraphs[] | select(.name == "'"$NAME"'")).schema.file = "schema/'"$NAME"'.graphql"
+          ' supergraph-config.yaml
+        # Add subgraph if it does not already exist 
+        else
+          echo "Adding new subgraph: $NAME"
+
+          yq -i '
+            .subgraphs += [{
+              "name": "'"$NAME"'",
+              "routing_url": "'"$ROUTING_URL"'",
+              "schema": { "file": "schema/'"$NAME"'.graphql" }
+            }]
+          ' supergraph-config.yaml
+        fi
+
+        # Update subscription-url if provided (optional)
+        if [ -n "$SUB_URL" ]; then
+          echo "Updating subscription config for $NAME"
+
+          yq -i '
+            (.subgraphs[] | select(.name == "'"$NAME"'")).subscription = {
               "url": "'"$SUB_URL"'",
               "protocol": "'"$SUB_PROTO"'"
             }
           ' supergraph-config.yaml
+        else
+          echo "No subscription-url provided; no subscription config updates applied"
         fi
 
         echo "Updated Cosmo config:"
@@ -171,7 +195,7 @@ runs:
 
     - name: Install Supergraph Schema Composition deps
       shell: bash
-      run: npm install @wundergraph/composition graphql js-yaml
+      run: npm install @wundergraph/composition@0.59.0 graphql@16.14.2 js-yaml@4.2.0
 
     - name: Generate Supergraph Schema
       shell: bash

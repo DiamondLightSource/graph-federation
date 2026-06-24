@@ -4,7 +4,7 @@ schema @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@key", "
 }
 
 type Account {
-  accountId: Int!
+  accountId: Int! @deprecated(reason: "account_id is deprecated and will be removed in a future version.")
   username: String!
   emailAddress: String
   title: String
@@ -27,28 +27,76 @@ enum AccountType {
   functional
 }
 
+input CreateInstrumentSessionInput {
+  """Number of the proposal the session is for"""
+  proposalNumber: Int!
+
+  """Name of the instrument the session is for"""
+  instrumentName: String!
+
+  """
+  Instrument Session information that isn't needed by the Session Service but should be passed through the UAS
+  """
+  sessionInfo: String!
+}
+
 """Date with time (isoformat)"""
 scalar DateTime
 
+input DateTimeFilterInput {
+  eq: DateTime = null
+  neq: DateTime = null
+  gt: DateTime = null
+  lt: DateTime = null
+  gte: DateTime = null
+  lte: DateTime = null
+}
+
 type Instrument {
   name: String!
+  key: String!
   scienceGroup: String
   description: String
   proposals: [Proposal!]!
   instrumentSessions: [InstrumentSession!]!
 }
 
-type InstrumentSession @key(fields: "instrumentSessionNumber proposal {proposalNumber}") {
-  instrumentSessionId: Int!
+type InstrumentSession @key(fields: "instrumentSessionNumber proposal {proposalNumber}") @key(fields: "instrumentSessionReference") {
+  instrumentSessionId: Int! @deprecated(reason: "instrument_session_id is deprecated and will be removed in a future version.")
   instrumentSessionNumber: Int!
   startTime: DateTime
   endTime: DateTime
   type: String
   state: String
   riskRating: String
-  proposal: Proposal
+  proposal: Proposal!
+
+  """
+  A human-readable reference for this session in the form '<PROPOSALCATEGORY><PROPOSALNUMBER>-<SESSIONNUMBER>' e.g. 'MX12345-1'.
+  """
+  instrumentSessionReference: String
   instrument: Instrument!
   roles: [InstrumentSessionRole!]!
+}
+
+type InstrumentSessionConnection @shareable {
+  edges: [InstrumentSessionEdge!]!
+  pageInfo: PageInfo!
+}
+
+type InstrumentSessionEdge @shareable {
+  cursor: String!
+  node: InstrumentSession!
+}
+
+input InstrumentSessionFilterInput {
+  instrumentSessionNumber: IntFilterInput = null
+  startTime: DateTimeFilterInput = null
+  endTime: DateTimeFilterInput = null
+  type: StringFilterInput = null
+  state: InstrumentSessionStateFilterInput = null
+  riskRating: StringFilterInput = null
+  proposalNumber: IntFilterInput = null
 }
 
 type InstrumentSessionMutations @key(fields: "instrumentSessionNumber proposalNumber") {
@@ -63,7 +111,44 @@ type InstrumentSessionRole {
   onSite: Boolean!
 }
 
+enum InstrumentSessionSortField {
+  instrumentSessionNumber
+  startTime
+  endTime
+  type
+  state
+  riskRating
+  proposalNumber
+}
+
+input InstrumentSessionSortInput {
+  field: InstrumentSessionSortField!
+  orderBy: SortOrder!
+}
+
+enum InstrumentSessionState {
+  CANCELLED
+  COMPLETED
+  FUTURE
+  IN_PROGRESS
+}
+
+input InstrumentSessionStateFilterInput {
+  eq: InstrumentSessionState = null
+  neq: InstrumentSessionState = null
+}
+
+input IntFilterInput {
+  eq: Int = null
+  neq: Int = null
+  gt: Int = null
+  lt: Int = null
+  gte: Int = null
+  lte: Int = null
+}
+
 type Mutation {
+  createInstrumentSession(input: CreateInstrumentSessionInput!): InstrumentSession!
   instrumentSession(proposalNumber: Int!, instrumentSessionNumber: Int!): InstrumentSessionMutations
 }
 
@@ -74,12 +159,17 @@ type PageInfo @shareable {
   hasPreviousPage: Boolean!
 }
 
-type Proposal @key(fields: "proposalNumber") {
+type Proposal @key(fields: "proposalNumber") @key(fields: "proposalReference") {
   proposalNumber: Int!
   proposalCategory: String
   title: String
   summary: String
   state: ProposalState!
+
+  """
+  A human-readable reference for this proposal in the form '<PROPOSALCATEGORY><PROPOSALNUMBER>' e.g. 'MX12345'.
+  """
+  proposalReference: String
   instrumentSessions: [InstrumentSession!]!
   instruments: [Instrument!]!
   roles: [ProposalAccount!]!
@@ -101,10 +191,31 @@ type ProposalEdge @shareable {
   node: Proposal!
 }
 
+input ProposalFilterInput {
+  proposalNumber: IntFilterInput = null
+  proposalCategory: StringFilterInput = null
+  title: StringFilterInput = null
+  state: ProposalStateFilterInput = null
+}
+
+enum ProposalSortField {
+  proposalNumber
+}
+
+input ProposalSortInput {
+  field: ProposalSortField!
+  orderBy: SortOrder!
+}
+
 enum ProposalState {
-  Open
-  Closed
-  Cancelled
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+input ProposalStateFilterInput {
+  eq: ProposalState = null
+  neq: ProposalState = null
 }
 
 type Query {
@@ -115,22 +226,49 @@ type Query {
   proposal(proposalNumber: Int!): Proposal
 
   """Get a list of proposals"""
-  proposals(proposalCategory: String = null, first: Int = null, last: Int = null, after: String = null, before: String = null): ProposalConnection!
+  proposals(first: Int = null, last: Int = null, after: String = null, before: String = null, sortBy: [ProposalSortInput!] = null, filterBy: ProposalFilterInput = null): ProposalConnection!
+
+  """
+  Get a proposal by its reference string e.g. 'MX12345'. The lookup is case-insensitive.
+  """
+  proposalByReference(reference: String!): Proposal
 
   """Get a instrument session"""
   instrumentSession(proposalNumber: Int!, instrumentSessionNumber: Int!): InstrumentSession
 
-  """Get a instrument session"""
-  instrumentSessions(proposalNumber: Int = null, proposalCategory: String = null): [InstrumentSession!]
+  """
+  Get an instrument session by its reference string e.g. 'MX12345-1'. The lookup is case-insensitive.
+  """
+  instrumentSessionByReference(reference: String!): InstrumentSession
 
-  """Get an instrument"""
-  instrument(instrumentName: String!): Instrument
+  """Get a list of instrument sessions"""
+  instrumentSessions(proposalNumber: Int = null, proposalCategory: String = null, first: Int = null, last: Int = null, after: String = null, before: String = null, sortBy: [InstrumentSessionSortInput!] = null, filterBy: InstrumentSessionFilterInput = null): InstrumentSessionConnection!
+
+  """Get an instrument by name"""
+  instrumentByName(name: String!): Instrument
+
+  """Get an instrument by key"""
+  instrumentByKey(key: String!): Instrument
 
   """Get a list of instruments"""
   instruments(scienceGroup: String = null): [Instrument!]!
 
   """Get an account"""
   account(username: String!): Account
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+input StringFilterInput {
+  eq: String = null
+  neq: String = null
+  contains: String = null
+  notContains: String = null
+  startsWith: String = null
+  endsWith: String = null
 }
 
 scalar _Any
