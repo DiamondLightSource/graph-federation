@@ -195,7 +195,7 @@ runs:
 
     - name: Install Supergraph Schema Composition deps
       shell: bash
-      run: npm install @wundergraph/composition graphql js-yaml
+      run: npm install @wundergraph/composition@0.59.0 graphql@16.14.2 js-yaml@4.2.0
 
     - name: Generate Supergraph Schema
       shell: bash
