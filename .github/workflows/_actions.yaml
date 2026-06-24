@@ -42,6 +42,7 @@ jobs:
           supergraph-artifact: compose-supergraph-without-app
           supergraph-filename: supergraph.graphql
           publish: false
+          persist-credentials: false
 
       - name: Check Supergraph with App
         uses: ./
