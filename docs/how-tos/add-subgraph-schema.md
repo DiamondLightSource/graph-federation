@@ -25,7 +25,7 @@ It is useful to upload the schema as an artifact to allow download both in futur
         runs-on: ubuntu-latest
         steps:
           - name: Checkout source
-            uses: actions/checkout@v4.1.7
+            uses: actions/checkout@v6
 
           - name: Setup Python
             uses: actions/setup-python@v5.2.0
