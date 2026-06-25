@@ -84,7 +84,7 @@ runs:
         repositories: graph-federation
 
     - name: Checkout Graph Federation source
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v6
       with:
         repository: DiamondLightSource/graph-federation
         token: ${{ steps.app-token.outputs.token || github.token }}
