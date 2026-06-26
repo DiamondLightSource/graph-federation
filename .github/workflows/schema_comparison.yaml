@@ -22,7 +22,7 @@ jobs:
           node-version: "24"
 
       - name: Install Cosmo CLI (wgc)
-        run: npm install -g wgc@latest
+        run: npm install -g wgc@0.124.0
 
       - name: Compose old Execution Config (main)
         run: |
