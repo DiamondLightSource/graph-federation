@@ -174,7 +174,7 @@ runs:
 
     - name: Install Cosmo CLI
       shell: bash
-      run: npm install -g wgc@latest
+      run: npm install -g wgc@0.124.0
 
     - name: Compose Execution Config
       id: compose_exec
