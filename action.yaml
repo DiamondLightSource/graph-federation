@@ -84,7 +84,7 @@ runs:
         repositories: graph-federation
 
     - name: Checkout Graph Federation source
-      uses: actions/checkout@v4.2.2
+      uses: actions/checkout@v6
       with:
         repository: DiamondLightSource/graph-federation
         token: ${{ steps.app-token.outputs.token || github.token }}
@@ -174,7 +174,7 @@ runs:
 
     - name: Install Cosmo CLI
       shell: bash
-      run: npm install -g wgc@latest
+      run: npm install -g wgc@0.124.0
 
     - name: Compose Execution Config
       id: compose_exec
