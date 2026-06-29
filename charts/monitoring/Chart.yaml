@@ -2,7 +2,7 @@ apiVersion: v2
 name: monitoring
 description: Monitoring tools for the Graph
 type: application
-version: 0.3.0
+version: 0.3.1
 
 dependencies:
   - name: prometheus
