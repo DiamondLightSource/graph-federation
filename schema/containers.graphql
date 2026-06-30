@@ -1,0 +1,432 @@
+schema @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@external", "@key", "@provides", "@shareable"]) {
+  query: Query
+  mutation: Mutation
+}
+
+"""Values required to set a container's children"""
+input AddContainersToContainerInput {
+  containerPositions: [ChildContainerPositionInput!]!
+}
+
+type AddContainersToContainerResponse {
+  success: Boolean!
+  containerPositions: [ContainerPosition!]
+  errors: [String!]!
+}
+
+input AddSampleToContainerInput {
+  containerPosition: ContainerPositionInput!
+}
+
+type AddSampleToContainerResponse {
+  success: Boolean!
+  samplePosition: SamplePostion
+  errors: [String!]!
+}
+
+input AddSamplesToContainerInput {
+  samplePositions: [SamplePositionInput!]!
+}
+
+type AddSamplesToContainerResponse {
+  success: Boolean!
+  samplePositions: [SamplePostion!]
+  errors: [String!]!
+}
+
+"""Values required to assign a contianer to an instrument"""
+input AssignContainerToInstrumentInput {
+  """The unique key of the instrument this container should be assigned to"""
+  instrumentKey: String!
+}
+
+type AssignContainerToInstrumentResponse {
+  success: Boolean!
+  errors: [String!]!
+}
+
+"""Values required to assign a contianer to an instrument session"""
+input AssignContainerToInstrumentSessionInput {
+  """The instrument session this container should be assigned to"""
+  instrumentSession: InstrumentSessionInput!
+}
+
+type AssignContainerToInstrumentSessionResponse {
+  success: Boolean!
+  errors: [String!]!
+}
+
+"""Values required to specify a container's position within a container"""
+input ChildContainerPositionInput {
+  childContainerId: UUID!
+  position: Int = null
+}
+
+"""A container that can store samples and/or other containers"""
+type Container {
+  """The unique identifier of this container"""
+  id: UUID!
+
+  """When the container was created in the service"""
+  createdTime: DateTime!
+
+  """When the container was last updated in the service"""
+  updatedTime: DateTime!
+
+  """The name of the container"""
+  name: String!
+
+  """The type of this container"""
+  type: ContainerType!
+
+  """The manufacturer's serial number of the container"""
+  serialNumber: String
+
+  """The facility barcode for the container"""
+  barcode: String
+
+  """Whether or not the container has been marked as discarded"""
+  deleted: Boolean!
+
+  """
+  The instrument sessions that this container is currently associated with
+  """
+  instrumentSessions: [InstrumentSession!]! @provides(fields: "instrumentSessionNumber proposal{ proposalNumber }")
+
+  """Sample positions within this container"""
+  samplePositions: [SamplePostion!]! @provides(fields: "sample { id }")
+
+  """The top-level fixed location where this container is stored"""
+  location: Container
+  parent: Container
+
+  """The container position occupied by this container"""
+  positionInParent: ContainerPosition
+  children: [Container!]!
+
+  """Container positions within this container"""
+  containerPositions: [ContainerPosition!]!
+}
+
+type ContainerConnection @shareable {
+  edges: [ContainerEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ContainerEdge @shareable {
+  cursor: String!
+  node: Container!
+}
+
+type ContainerMutations {
+  """Update this container"""
+  updateContainer(input: UpdateContainerInput!): UpdateContainerResponse!
+
+  """Add containers to this container"""
+  addContainersToContainer(input: AddContainersToContainerInput!): AddContainersToContainerResponse!
+
+  """Remove containers from this container"""
+  removeContainersFromContainer(input: RemoveContainersFromContainerInput!): RemoveContainersFromContainerResponse!
+
+  """Set the container that this container is contained within"""
+  setParentContainer(input: SetParentContainerInput!): SetParentContainerResponse!
+
+  """Add samples to this container"""
+  addSamplesToContainer(input: AddSamplesToContainerInput!): AddSamplesToContainerResponse!
+
+  """Remove samples from this container"""
+  removeSamplesFromContainer(input: RemoveSamplesFromContainerInput!): RemoveSamplesFromContainerResponse!
+
+  """Associate this container with an instrument session"""
+  assignContainerToInstrumentSession(input: AssignContainerToInstrumentSessionInput!): AssignContainerToInstrumentSessionResponse!
+
+  """Unassign this container from an instrument session"""
+  unassignContainerFromInstrumentSession(input: UnassignContainerFromInstrumentSessionInput!): UnassignContainerFromInstrumentSessionResponse!
+
+  """Associate this container with an instrument"""
+  assignContainerToInstrument(input: AssignContainerToInstrumentInput!): AssignContainerToInstrumentResponse!
+
+  """Unassign this container from an instrument"""
+  unassignContainerFromInstrument(input: UnassignContainerFromInstrumentInput!): UnassignContainerFromInstrumentResponse!
+}
+
+type ContainerPosition {
+  position: Int
+  container: Container
+}
+
+"""Values required to specify a position within a container"""
+input ContainerPositionInput {
+  parentContainerId: UUID!
+  position: Int = null
+}
+
+"""A type of container"""
+type ContainerType {
+  """The unique name of the container type"""
+  name: String!
+
+  """A description of this type of container"""
+  description: String!
+
+  """The number of containers the container can hold"""
+  numberOfContainerPositions: Int
+
+  """The number of samples the container can hold"""
+  numberOfSamplePositions: Int
+
+  """Used to distingush storage locations from moveable containers"""
+  isFixedLocation: Boolean!
+}
+
+type ContainerTypeConnection @shareable {
+  edges: [ContainerTypeEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ContainerTypeEdge @shareable {
+  cursor: String!
+  node: ContainerType!
+}
+
+type ContainerTypeMutations {
+  """Update this container type"""
+  updateContainerType(input: UpdateContainerTypeInput!): UpdateContainerTypeResponse!
+}
+
+"""Values required to create a container"""
+input CreateContainerInput {
+  """The unique key of an instrument associated with this container"""
+  instrumentKey: String = null
+
+  """An instrument session associated with this container"""
+  instrumentSession: InstrumentSessionInput = null
+
+  """The name of the type of this container"""
+  type: String!
+
+  """The name of the container"""
+  name: String!
+
+  """The serial number of this container"""
+  serialNumber: String = null
+
+  """The facility barcode of the container"""
+  barcode: String = null
+}
+
+type CreateContainerResponse {
+  success: Boolean!
+  container: Container
+  errors: [String!]!
+}
+
+"""Values required to create a container type"""
+input CreateContainerTypeInput {
+  """The unique key of an instrument associated with this container type"""
+  instrumentKey: String!
+
+  """The unique name of this container type"""
+  name: String!
+
+  """A description of this container type"""
+  description: String!
+
+  """Whether or not this container type is a fixed storage location"""
+  isFixedLocation: Boolean!
+
+  """The number of container positions within this container"""
+  numberOfContainerPositions: Int = 0
+
+  """The number of sample positions within this container"""
+  numberOfSamplePositions: Int = 0
+}
+
+type CreateContainerTypeResponse {
+  success: Boolean!
+  containerType: ContainerType
+  errors: [String!]!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+type InstrumentSession @key(fields: "instrumentSessionNumber proposal { proposalNumber }") {
+  instrumentSessionNumber: Int! @external
+  proposal: Proposal @external
+}
+
+"""Values required to uniquely identify an instrument session"""
+input InstrumentSessionInput {
+  proposalNumber: Int!
+  instrumentSessionNumber: Int!
+}
+
+type Mutation {
+  """Create a new container type"""
+  createContainerType(input: CreateContainerTypeInput!): CreateContainerTypeResponse!
+
+  """Mutations relating to a specific container type"""
+  containerType(name: String!): ContainerTypeMutations!
+
+  """Create a new container"""
+  createContainer(input: CreateContainerInput!): CreateContainerResponse!
+
+  """Muatations relating to a specific container"""
+  container(id: UUID = null, barcode: String = null): ContainerMutations!
+}
+
+type PageInfo @shareable {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type Proposal @key(fields: "proposalNumber") {
+  proposalNumber: Int! @external
+}
+
+type Query {
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+
+  """Fetch a single container type, by specifying its name"""
+  containerType(name: String!): ContainerType
+
+  """Fetch multiple container types, by specifying associated instruments"""
+  containerTypes(instrumentKeys: [String!]!, first: Int = 20, last: Int = null, before: String = null, after: String = null): ContainerTypeConnection!
+
+  """Fetch a single container, by specifying either its id or barcode"""
+  container(id: UUID = null, barcode: String = null): Container
+
+  "\n        Fetch multiple containers, by specifying either its parent, a child, an\n        associated instrument, or associated instrument sessions"
+  containers(instrumentSessions: [InstrumentSessionInput!] = null, instrumentKeys: [String!] = null, first: Int = 20, last: Int = null, before: String = null, after: String = null): ContainerConnection!
+}
+
+"""Values required to remove containers from a container"""
+input RemoveContainersFromContainerInput {
+  containerIds: [UUID!]!
+}
+
+type RemoveContainersFromContainerResponse {
+  success: Boolean!
+}
+
+"""Values required to remove samples from a container"""
+input RemoveSamplesFromContainerInput {
+  sampleIds: [UUID!]!
+}
+
+type RemoveSamplesFromContainerResponse {
+  success: Boolean!
+}
+
+type Sample @key(fields: "id") {
+  id: UUID! @external
+
+  """The container containing the sample"""
+  container: Container
+
+  """The sample's position within a container"""
+  positionInContainer: ContainerPosition
+}
+
+type SampleMutations @key(fields: "sampleId") {
+  sampleId: UUID!
+
+  """Assign this sample to a container"""
+  addSampleToContainer(input: AddSampleToContainerInput!): AddSampleToContainerResponse!
+}
+
+"""Values required to specify a sample's position within a container"""
+input SamplePositionInput {
+  sampleId: UUID!
+  position: Int = null
+}
+
+type SamplePostion {
+  position: Int
+  sample: Sample
+}
+
+"""Values required to set a container's parent"""
+input SetParentContainerInput {
+  containerPosition: ContainerPositionInput!
+}
+
+type SetParentContainerResponse {
+  success: Boolean!
+  containerPosition: ContainerPosition
+  errors: [String!]!
+}
+
+scalar UUID
+
+"""Values required to unassign a contianer from an instrument"""
+input UnassignContainerFromInstrumentInput {
+  """
+  The unique key of the instrument this container should be unassigned from
+  """
+  instrumentKey: String!
+}
+
+type UnassignContainerFromInstrumentResponse {
+  success: Boolean!
+  errors: [String!]!
+}
+
+"""Values required to unassign a contianer from an instrument session"""
+input UnassignContainerFromInstrumentSessionInput {
+  """The instrument session this container should be unassigned from"""
+  instrumentSession: InstrumentSessionInput!
+}
+
+type UnassignContainerFromInstrumentSessionResponse {
+  success: Boolean!
+  errors: [String!]!
+}
+
+"""Values required to update a container"""
+input UpdateContainerInput {
+  """The name of the container"""
+  name: String
+
+  """The serial number of this container"""
+  serialNumber: String
+
+  """The facility barcode of the container"""
+  barcode: String
+}
+
+type UpdateContainerResponse {
+  success: Boolean!
+  container: Container
+  errors: [String!]!
+}
+
+"""Values required to update a container type"""
+input UpdateContainerTypeInput {
+  """The unique name of the container type"""
+  name: String
+
+  """A description of this container type"""
+  description: String
+
+  """Used to distingush storage locations from moveable containers"""
+  isFixedLocation: Boolean
+}
+
+type UpdateContainerTypeResponse {
+  success: Boolean!
+  containerType: ContainerType
+  errors: [String!]!
+}
+
+scalar _Any
+
+union _Entity = InstrumentSession | Proposal | Sample | SampleMutations
+
+type _Service {
+  sdl: String!
+}
