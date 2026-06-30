@@ -23,3 +23,7 @@ subgraphs:
     routing_url: https://api.experiment-definition.diamond.ac.uk/graphql
     schema:
       file: schema/experiments.graphql
+  - name: containers
+    routing_url: https://api.sample-containers.diamond.ac.uk/graphql
+    schema:
+      file: schema/containers.graphql
