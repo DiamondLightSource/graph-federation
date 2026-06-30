@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.2.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.1.0...supergraph-schema@v3.2.0) (2026-06-30)
+
+
+### Features
+
+* add experiments subgraph ([bbccfe3](https://github.com/DiamondLightSource/graph-federation/commit/bbccfe3b8a93c27fa37b165a39e1e6b067d4ade1))
+* update instrument_sessions schema to instrument_sessions 0.4.2 ([bf7fba0](https://github.com/DiamondLightSource/graph-federation/commit/bf7fba0847a2ff5e98d9df4067737a61aa1927af))
+* update samples schema to samples 0.3.0 ([8bb8984](https://github.com/DiamondLightSource/graph-federation/commit/8bb8984794991afe620c402bdc1af493401a8a6a))
+* update samples schema to samples 0.3.1 ([3e42a16](https://github.com/DiamondLightSource/graph-federation/commit/3e42a16db0c265faa08aba75b21712f495d9ce83))
+* update workflows schema to graph-proxy@v0.1.19 ([a154c68](https://github.com/DiamondLightSource/graph-federation/commit/a154c683e2d5ef1930d57dd44e5c4c80d9160a92))
+
 ## [3.1.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.0.0...supergraph-schema@v3.1.0) (2026-03-18)
 
 
