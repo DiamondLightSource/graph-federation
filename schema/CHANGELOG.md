@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.2.0...supergraph-schema@v3.3.0) (2026-07-01)
+
+
+### Features
+
+* update experiments schema to experiments experiments-0.2.0 ([e91d841](https://github.com/DiamondLightSource/graph-federation/commit/e91d84167cb6129fdd7ac481added00c3af44783))
+
 ## [3.2.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.1.0...supergraph-schema@v3.2.0) (2026-06-30)
 
 
