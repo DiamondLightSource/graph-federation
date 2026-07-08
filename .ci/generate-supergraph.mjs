@@ -32,7 +32,9 @@ const subgraphs = cfg.subgraphs.map((sg) => {
   };
 });
 
-console.log("subgraphs are", subgraphs.map(s => ({ name: s.name, url: s.url })));
+const sortedSubgraphs = new Map([...subgraphs.name()].sort());
+
+console.log("subgraphs are", sortedSubgraphs.map(s => ({ name: s.name, url: s.url })));
 
 function composeWithCompatibility() {
   // Support two signatures
