@@ -4,7 +4,6 @@ schema @link(url: "https://specs.apollo.dev/federation/v2.7", import: ["@key", "
 }
 
 type Account {
-  accountId: Int! @deprecated(reason: "account_id is deprecated and will be removed in a future version.")
   username: String!
   emailAddress: String
   title: String
@@ -12,8 +11,25 @@ type Account {
   familyName: String
   type: AccountType!
   state: AccountState!
+  accountId: Int! @deprecated(reason: "account_id is deprecated and will be removed in a future version.")
   proposalRoles: [ProposalAccount!]!
   instrumentSessionRoles: [InstrumentSessionRole!]!
+}
+
+input AccountFilterInput {
+  emailAddress: StringFilterInput = null
+  givenName: StringFilterInput = null
+  familyName: StringFilterInput = null
+}
+
+enum AccountSortField {
+  family_name
+  given_name
+}
+
+input AccountSortInput {
+  field: AccountSortField!
+  orderBy: SortOrder!
 }
 
 enum AccountState {
@@ -37,7 +53,7 @@ input CreateInstrumentSessionInput {
   """
   Instrument Session information that isn't needed by the Session Service but should be passed through the UAS
   """
-  sessionInfo: String!
+  additionalInfo: JSON = null
 }
 
 """Date with time (isoformat)"""
@@ -59,22 +75,23 @@ type Instrument {
   description: String
   proposals: [Proposal!]!
   instrumentSessions: [InstrumentSession!]!
+
+  """
+  Get paginated staff accounts for this instrument. Trusted users see all accounts; fedid users see only accounts linked to sessions or instruments they are associated with.
+  """
+  staff(first: Int = null, last: Int = null, after: String = null, before: String = null, sortBy: [AccountSortInput!] = null, filterBy: AccountFilterInput = null): StaffConnection!
 }
 
 type InstrumentSession @key(fields: "instrumentSessionNumber proposal {proposalNumber}") @key(fields: "instrumentSessionReference") {
   instrumentSessionId: Int! @deprecated(reason: "instrument_session_id is deprecated and will be removed in a future version.")
   instrumentSessionNumber: Int!
+  instrumentSessionReference: String
   startTime: DateTime
   endTime: DateTime
   type: String
   state: String
   riskRating: String
   proposal: Proposal!
-
-  """
-  A human-readable reference for this session in the form '<PROPOSALCATEGORY><PROPOSALNUMBER>-<SESSIONNUMBER>' e.g. 'MX12345-1'.
-  """
-  instrumentSessionReference: String
   instrument: Instrument!
   roles: [InstrumentSessionRole!]!
 }
@@ -147,6 +164,11 @@ input IntFilterInput {
   lte: Int = null
 }
 
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf).
+"""
+scalar JSON @specifiedBy(url: "https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf")
+
 type Mutation {
   createInstrumentSession(input: CreateInstrumentSessionInput!): InstrumentSession!
   instrumentSession(proposalNumber: Int!, instrumentSessionNumber: Int!): InstrumentSessionMutations
@@ -165,10 +187,6 @@ type Proposal @key(fields: "proposalNumber") @key(fields: "proposalReference") {
   title: String
   summary: String
   state: ProposalState!
-
-  """
-  A human-readable reference for this proposal in the form '<PROPOSALCATEGORY><PROPOSALNUMBER>' e.g. 'MX12345'.
-  """
   proposalReference: String
   instrumentSessions: [InstrumentSession!]!
   instruments: [Instrument!]!
@@ -260,6 +278,26 @@ type Query {
 enum SortOrder {
   ASC
   DESC
+}
+
+type Staff {
+  username: String!
+  emailAddress: String
+  title: String
+  givenName: String
+  familyName: String
+  type: AccountType!
+  state: AccountState!
+}
+
+type StaffConnection @shareable {
+  edges: [StaffEdge!]!
+  pageInfo: PageInfo!
+}
+
+type StaffEdge @shareable {
+  cursor: String!
+  node: Staff!
 }
 
 input StringFilterInput {
