@@ -54,6 +54,10 @@ type Mutation {
 	submit specific workflow template
 	"""
 	submitWorkflowTemplate(name: String!, visit: VisitInput!, parameters: JSON!): Workflow!
+	"""
+	Create a Trigger from a template
+	"""
+	createTrigger(templateRef: String!, name: String, visit: VisitInput): Trigger
 }
 
 """
@@ -89,9 +93,15 @@ The root query of the service
 type Query {
 	node(id: ID!): NodeValue
 	"""
-	Get a single [`Workflow`] by proposal, visit, and name
+	Get a single [`Workflow`] by proposal, visit, and name.
+	
+	In case of two workflows with the same name, returns the most recent.
 	"""
-	workflow(visit: VisitInput!, name: String!): Workflow!
+	workflow(visit: VisitInput!, name: String!): Workflow @deprecated(reason: "Use workflowById instead")
+	"""
+	Get a single [`Workflow`] by unique ID.
+	"""
+	workflowById(id: ID!): Workflow
 	"""
 	Find all workflows available for a given visit
 	"""
@@ -236,6 +246,20 @@ type TemplateSource {
 }
 
 """
+A Trigger for creating automated workflows
+"""
+type Trigger {
+	"""
+	The name of the Trigger
+	"""
+	name: String
+	"""
+	The name of a ClusterTriggerTemplate that the Trigger is created from
+	"""
+	templateRef: String!
+}
+
+"""
 URL is a String implementing the [URL Standard](http://url.spec.whatwg.org/)
 """
 scalar Url
@@ -278,7 +302,7 @@ input VisitInput {
 
 type Workflow {
 	"""
-	The unique ID derived from the visit and name
+	The unique ID derived from the visit, name and uid
 	"""
 	id: ID!
 	"""
@@ -543,6 +567,10 @@ input WorkflowTemplatesFilter {
 	scienceGroup: [ScienceGroup!]
 }
 
+"""
+Marks an element of a GraphQL schema as no longer supported.
+"""
+directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | ENUM_VALUE
 """
 Directs the executor to include this field or fragment only when the `if` argument is true.
 """
