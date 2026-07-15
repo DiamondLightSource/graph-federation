@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.3.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.2.0...supergraph-schema@v3.3.0) (2026-07-15)
+
+
+### Features
+
+* update containers schema to containers containers-0.1.0 ([63ac477](https://github.com/DiamondLightSource/graph-federation/commit/63ac477502ebe418ced7306cbd439b6f28ef1a12))
+* update experiments schema to experiments experiments-0.2.0 ([e91d841](https://github.com/DiamondLightSource/graph-federation/commit/e91d84167cb6129fdd7ac481added00c3af44783))
+* update instrument_sessions schema to instrument_sessions 0.5.1 ([42c4e28](https://github.com/DiamondLightSource/graph-federation/commit/42c4e28e59344a6acd92ab3637ae2d665a071474))
+
 ## [3.2.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.1.0...supergraph-schema@v3.2.0) (2026-06-30)
 
 
