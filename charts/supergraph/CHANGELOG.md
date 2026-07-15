@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph@v3.2.0...supergraph@v3.3.0) (2026-07-15)
+
+
+### Miscellaneous Chores
+
+* **supergraph:** Synchronize supergraph versions
+
 ## [3.2.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph@v3.1.0...supergraph@v3.2.0) (2026-06-30)
 
 
