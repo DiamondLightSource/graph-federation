@@ -41,13 +41,6 @@ input CreateOrValidateSampleInputBase {
   validateOnly: Boolean! = false
 }
 
-input CreateSampleInput {
-  proposalNumber: Int!
-  instrumentSessionNumber: Int!
-  samples: [SampleInLegacy!]!
-  validateOnly: Boolean! = false
-}
-
 """Return type when creating or validating samples"""
 type CreateSamplesResponse {
   """Whether the operation has succeeded without validation errors"""
@@ -94,7 +87,7 @@ type InstrumentSession @key(fields: "instrumentSessionNumber proposal { proposal
   proposal: Proposal @external
 
   """Samples associated with a given instrument session"""
-  samples(first: Int!, filter: SampleFilterInput! = {}, before: String = null, after: String = null, last: Int = null, orderBy: SampleOrder! = {}): SampleConnection!
+  samples(first: Int = null, filter: SampleFilterInput! = {}, before: String = null, after: String = null, last: Int = null, orderBy: SampleOrder! = {}): SampleConnection!
 }
 
 input InstrumentSessionInput {
@@ -131,7 +124,6 @@ input JSONOperatorInput {
 
 type Mutation {
   createOrValidateSamples(input: CreateOrValidateSampleInput!): CreateSamplesResponse!
-  createSamples(input: CreateSampleInput!): [Sample!]! @deprecated(reason: "Will be replaced by createOrValidateSamples")
   sample(sampleId: UUID!): SampleMutations
 }
 
@@ -166,7 +158,7 @@ type Query {
   sample(sampleId: UUID!): Sample
 
   """Get a list of samples associated with a given instrument session"""
-  samples(first: Int!, instrumentSessions: [InstrumentSessionInput!] = null, filter: SampleFilterInput! = {}, before: String = null, after: String = null, last: Int = null, orderBy: SampleOrder! = {}): SampleConnection!
+  samples(first: Int = null, instrumentSessions: [InstrumentSessionInput!] = null, filter: SampleFilterInput! = {}, before: String = null, after: String = null, last: Int = null, orderBy: SampleOrder! = {}): SampleConnection!
 }
 
 type Sample @key(fields: "id") {
@@ -248,14 +240,6 @@ input SampleIn {
 
   """Data of the sample"""
   data: JSON!
-}
-
-input SampleInLegacy {
-  name: String!
-  data: JSON!
-  dataSchemaUrl: String!
-  parentIds: [Int!] = null
-  children: [SampleInLegacy!] = null
 }
 
 type SampleMutations @key(fields: "sampleId") {
