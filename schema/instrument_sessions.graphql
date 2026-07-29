@@ -73,8 +73,8 @@ type Instrument {
   key: String!
   scienceGroup: String
   description: String
-  proposals: [Proposal!]!
-  instrumentSessions: [InstrumentSession!]!
+  proposals(first: Int = null, last: Int = null, after: String = null, before: String = null, sortBy: [ProposalSortInput!] = null, filterBy: ProposalFilterInput = null): ProposalConnection!
+  instrumentSessions(first: Int = null, last: Int = null, after: String = null, before: String = null, sortBy: [InstrumentSessionSortInput!] = null, filterBy: InstrumentSessionFilterInput = null): InstrumentSessionConnection!
 
   """
   Get paginated staff accounts for this instrument. Trusted users see all accounts; fedid users see only accounts linked to sessions or instruments they are associated with.
@@ -188,7 +188,7 @@ type Proposal @key(fields: "proposalNumber") @key(fields: "proposalReference") {
   summary: String
   state: ProposalState!
   proposalReference: String
-  instrumentSessions: [InstrumentSession!]!
+  instrumentSessions(first: Int = null, last: Int = null, after: String = null, before: String = null, sortBy: [InstrumentSessionSortInput!] = null, filterBy: InstrumentSessionFilterInput = null): InstrumentSessionConnection!
   instruments: [Instrument!]!
   roles: [ProposalAccount!]!
 }
