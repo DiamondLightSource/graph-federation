@@ -14,7 +14,7 @@ graph:
 schema:
   repoURL: ghcr.io/diamondlightsource/graph-federation
   nightlyRevision: "*"
-  stableRevision: 3.0.0
+  stableRevision: 3.2.0
   chart: supergraph
 
 destination:
