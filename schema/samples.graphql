@@ -68,6 +68,15 @@ input DatetimeOperatorInput {
   lt: DateTime = null
 }
 
+"""Return type when deleting a sample"""
+type DeleteSampleResponse {
+  """Whether the operation has succeeded"""
+  success: Boolean!
+
+  """Errors that occurred during the operation"""
+  errors: [String!]!
+}
+
 """The details of sample validation error"""
 type ErrorDetails {
   """The type of error that occurred"""
@@ -125,6 +134,8 @@ input JSONOperatorInput {
 type Mutation {
   createOrValidateSamples(input: CreateOrValidateSampleInput!): CreateSamplesResponse!
   sample(sampleId: UUID!): SampleMutations
+  deleteSample(sampleId: UUID!): DeleteSampleResponse!
+  restoreSample(sampleId: UUID!): RestoreSampleResponse!
 }
 
 input NumericOperatorInput {
@@ -161,6 +172,15 @@ type Query {
   samples(first: Int = null, instrumentSessions: [InstrumentSessionInput!] = null, filter: SampleFilterInput! = {}, before: String = null, after: String = null, last: Int = null, orderBy: SampleOrder! = {}): SampleConnection!
 }
 
+"""Return type when restoring a deleted sample"""
+type RestoreSampleResponse {
+  """Whether the operation has succeeded"""
+  success: Boolean!
+
+  """Errors that occurred during the operation"""
+  errors: [String!]!
+}
+
 type Sample @key(fields: "id") {
   id: UUID!
   name: String!
@@ -168,6 +188,7 @@ type Sample @key(fields: "id") {
   createdTime: DateTime!
   updatedTime: DateTime!
   dataSchemaUrl: String!
+  deleted: Boolean!
 
   """Samples from which this sample is derived"""
   parents(first: Int = null, before: String = null, after: String = null, last: Int = null): SampleConnection!
@@ -313,15 +334,15 @@ input UpdateSampleInput {
   dataSchemaUrl: String
 }
 
-"""Return type when creating or validating samples"""
+"""Return type when updating a sample"""
 type UpdateSampleResponse {
-  """Whether the operation has succeeded without validation errors"""
+  """Whether the operation has succeeded"""
   success: Boolean!
 
   """Sample that has been updated"""
   sample: Sample
 
-  """Errors that occurred during sample validation"""
+  """Errors that occurred during the operation"""
   errors: [SampleValidationError!]!
 }
 
