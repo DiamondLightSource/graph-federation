@@ -88,6 +88,12 @@ type Container {
   """Whether or not the container has been marked as discarded"""
   deleted: Boolean!
 
+  """The user that created the container"""
+  createdBy: String!
+
+  """The user that last modified the container"""
+  modifiedBy: String!
+
   """
   The instrument sessions that this container is currently associated with
   """
@@ -116,6 +122,24 @@ type ContainerConnection @shareable {
 type ContainerEdge @shareable {
   cursor: String!
   node: Container!
+}
+
+"""Values required to filter a list of containers"""
+input ContainerFilterInput {
+  """Filter using the id of the container's parent"""
+  parentId: UUIDFilterInputV2 = null
+
+  """Filter using the of the container's children"""
+  childId: UUIDFilterInputV2 = null
+
+  """Include/exclude 'deleted' containers"""
+  includeDeleted: Boolean! = false
+
+  """Filter to containers with/without child containers"""
+  hasChildren: Boolean = null
+
+  """Filter to containers with/without a parent"""
+  hasParent: Boolean = null
 }
 
 type ContainerMutations {
@@ -177,6 +201,12 @@ type ContainerType {
 
   """Used to distingush storage locations from moveable containers"""
   isFixedLocation: Boolean!
+
+  """The user that created the container type"""
+  createdBy: String!
+
+  """The user user that last modified the container type"""
+  modifiedBy: String!
 }
 
 type ContainerTypeConnection @shareable {
@@ -301,7 +331,7 @@ type Query {
   container(id: UUID = null, barcode: String = null): Container
 
   "\n        Fetch multiple containers, by specifying either its parent, a child, an\n        associated instrument, or associated instrument sessions"
-  containers(instrumentSessions: [InstrumentSessionInput!] = null, instrumentKeys: [String!] = null, first: Int = 20, last: Int = null, before: String = null, after: String = null): ContainerConnection!
+  containers(instrumentSessions: [InstrumentSessionInput!] = null, instrumentKeys: [String!] = null, filter: ContainerFilterInput = null, first: Int = 20, last: Int = null, before: String = null, after: String = null): ContainerConnection!
 }
 
 """Values required to remove containers from a container"""
@@ -362,6 +392,33 @@ type SetParentContainerResponse {
 }
 
 scalar UUID
+
+input UUIDFilterInputV2 {
+  """
+  Will filter to items where the `String` field is a member of the provided value
+  """
+  in: [String!] = null
+
+  """
+  Will filter to items where the `String` field is equal to the provided value
+  """
+  equalTo: UUID = null
+
+  """
+  Will filter to items where the `String` field is not equal to the provided value
+  """
+  notEqualTo: UUID = null
+
+  """
+  Will filter to items where the `String` field is not a member of the provided value
+  """
+  notIn: [UUID!] = null
+
+  """
+  Will filter to items where the `String` field is contains the provided value
+  """
+  contains: UUID = null
+}
 
 """Values required to unassign a contianer from an instrument"""
 input UnassignContainerFromInstrumentInput {
