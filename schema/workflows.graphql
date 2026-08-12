@@ -34,7 +34,6 @@ scalar JSONObject
 
 """
 Represents a label selector for filtering workflows based on labels
-Represents a label selector for filtering workflows based on labels
 """
 input LabelSelector {
 	"""
@@ -503,7 +502,6 @@ input WorkflowFilter {
 	"""
 	template: Template
 	"""
-	Additional label selectors for filtering workflows
 	Additional label selectors for filtering workflows
 	"""
 	labelSelectors: [LabelSelector!]
