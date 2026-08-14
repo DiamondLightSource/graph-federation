@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.4.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.3.0...supergraph-schema@v3.4.0) (2026-08-14)
+
+
+### Features
+
+* update containers schema to containers containers-0.3.0 ([2cbf348](https://github.com/DiamondLightSource/graph-federation/commit/2cbf3480f682240a058199f3b91f152deb42f4a2))
+* update experiments schema to experiments experiments-0.3.0 ([4cf9b84](https://github.com/DiamondLightSource/graph-federation/commit/4cf9b84638bb226901b8b5f4ccf6daf68adb060a))
+* update workflows schema to graph-proxy@v0.1.21 ([d938489](https://github.com/DiamondLightSource/graph-federation/commit/d938489e0f815a55e308c855fc84e0adc1538544))
+
 ## [3.3.0](https://github.com/DiamondLightSource/graph-federation/compare/supergraph-schema@v3.2.0...supergraph-schema@v3.3.0) (2026-08-13)
 
 
