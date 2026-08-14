@@ -27,3 +27,7 @@ subgraphs:
     routing_url: https://api.sample-containers.diamond.ac.uk/graphql
     schema:
       file: schema/containers.graphql
+  - name: datacat
+    routing_url: https://api.cats.diamond.ac.uk/graphql
+    schema:
+      file: schema/datacat.graphql
